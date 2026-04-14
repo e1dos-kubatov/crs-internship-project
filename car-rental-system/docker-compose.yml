@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: car-rental-system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234567
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/car-rental-system
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1234567
+      JWT_SECRET: your-super-secret-jwt-key-min64charsabcdefghijklmnopqrstuvwxyz1234567890ABCD
+      APP_ADMIN_NAME: Super Admin
+      APP_ADMIN_EMAIL: superadmin@carrental.com
+      APP_ADMIN_PASSWORD: Super123!
+      # Add OAuth env vars here
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+

@@ -1,0 +1,7 @@
+# Скомпилированные файлы
+target/
+car-rental-backend/target/
+
+# Файлы настроек самой IntelliJ IDEA (их тоже не нужно пушить)
+.idea/
+*.iml

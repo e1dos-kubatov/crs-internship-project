@@ -57,12 +57,13 @@ public class AuthService {
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // 🔥 FIX: проверяем provider ДО authenticate
-        if (user.getProvider() != Provider.LOCAL) {
-            throw new BadRequestException("This account uses OAuth2 login (Google/GitHub)");
+        // 🔥 HYBRID AUTH FIX:
+        // We only block them if they are an OAuth user AND they don't have a password.
+        if (user.getProvider() != Provider.LOCAL && (user.getPassword() == null || user.getPassword().isEmpty())) {
+            throw new BadRequestException("This account uses OAuth2 login and has no local password set.");
         }
 
-        // 🔐 только LOCAL пользователи используют пароль
+        // 🔐 If they are LOCAL or HYBRID (have a password), verify the credentials
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         normalizedEmail,

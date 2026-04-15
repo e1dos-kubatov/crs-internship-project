@@ -61,6 +61,37 @@ public class OrderService {
         return mapToResponse(partnerOrderRepository.save(order));
     }
 
+    // NEW: Allow Partners to update their orders BEFORE they are approved
+    @Transactional
+    public PartnerOrderResponseDto updateOrder(Long orderId, PartnerOrderRequestDto request, String email) {
+        PartnerOrder order = findOrder(orderId);
+
+        // SECURITY CHECK: Must be Admin or Owner
+        verifyOrderOwnershipOrAdmin(order, email);
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BadRequestException("You can only update PENDING orders. Since this is already processed, please update the Car directly.");
+        }
+
+        String normalizedVin = normalizeVin(request.getVin());
+
+        // Check if VIN exists on OTHER orders/cars
+        partnerOrderRepository.findByVin(normalizedVin)
+                .filter(existing -> !existing.getId().equals(orderId))
+                .ifPresent(existing -> { throw new BadRequestException("An order with this VIN already exists"); });
+        carRepository.findByVin(normalizedVin)
+                .ifPresent(existingCar -> { throw new BadRequestException("A car with this VIN already exists"); });
+
+        order.setBrand(request.getBrand());
+        order.setModel(request.getModel());
+        order.setYear(request.getYear());
+        order.setVin(normalizedVin);
+        order.setPricePerDay(request.getPricePerDay());
+        order.setDescription(request.getDescription());
+
+        return mapToResponse(partnerOrderRepository.save(order));
+    }
+
     public List<PartnerOrderResponseDto> getMyOrders(String email) {
         User partner = findUserByEmail(email);
         return partnerOrderRepository.findByPartnerId(partner.getId()).stream()
@@ -89,8 +120,13 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrder(Long orderId) {
+    // FIXED: Now requires userEmail to verify ownership
+    public void deleteOrder(Long orderId, String userEmail) {
         PartnerOrder order = findOrder(orderId);
+
+        // SECURITY CHECK: Must be Admin or Owner
+        verifyOrderOwnershipOrAdmin(order, userEmail);
+
         if (order.getApprovedCar() != null) {
             carService.disableCar(order.getApprovedCar().getId());
         }
@@ -131,6 +167,19 @@ public class OrderService {
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    // NEW HELPER: Verifies if the user is an Admin or the Owner of the Order
+    private void verifyOrderOwnershipOrAdmin(PartnerOrder order, String userEmail) {
+        User currentUser = findUserByEmail(userEmail);
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN") ||
+                currentUser.getRole().name().equals("ROLE_ADMIN");
+
+        if (!isAdmin) {
+            if (order.getPartner() == null || !order.getPartner().getId().equals(currentUser.getId())) {
+                throw new BadRequestException("Access Denied: You can only modify your own orders!");
+            }
+        }
     }
 
     private PartnerOrderResponseDto mapToResponse(PartnerOrder order) {

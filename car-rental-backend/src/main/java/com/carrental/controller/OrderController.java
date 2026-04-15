@@ -42,6 +42,15 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("All orders retrieved successfully", orderService.getAllOrders()));
     }
 
+    // NEW: Allow Partners to update their pending orders
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<PartnerOrderResponseDto>> updateOrder(@PathVariable Long id,
+                                                                            @Valid @RequestBody PartnerOrderRequestDto request,
+                                                                            Principal principal) {
+        return ResponseEntity.ok(ApiResponse.success("Order updated successfully", orderService.updateOrder(id, request, principal.getName())));
+    }
+
     @PatchMapping("/{id}/decision")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PartnerOrderResponseDto>> decideOrder(@PathVariable Long id,
@@ -50,9 +59,10 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
+    // FIXED: Allowed Partners to delete their own orders and passed Principal
+    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long id, Principal principal) {
+        orderService.deleteOrder(id, principal.getName());
         return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", null));
     }
 }

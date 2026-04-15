@@ -66,12 +66,21 @@ public class CarService {
     }
 
     @Transactional
-    // FIXED: Added userEmail to verify ownership
     public CarResponseDto updateCar(Long id, CarRequestDto request, String userEmail) {
         Car car = findCarById(id);
+        User currentUser = findUserByEmail(userEmail);
 
-        // SECURITY CHECK: Make sure this user is allowed to update this car
-        verifyOwnershipOrAdmin(car, userEmail);
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN") ||
+                currentUser.getRole().name().equals("ROLE_ADMIN");
+
+        // SECURITY & RE-APPROVAL WORKFLOW
+        if (!isAdmin) {
+            if (car.getOwner() == null || !car.getOwner().getId().equals(currentUser.getId())) {
+                throw new BadRequestException("Access Denied: You can only modify your own cars!");
+            }
+            // 🔥 If a Partner updates the car, hide it until an Admin approves it again!
+            car.setAvailable(false);
+        }
 
         String normalizedVin = normalizeVin(request.getVin());
         validateVinAvailability(normalizedVin, id);
@@ -82,6 +91,14 @@ public class CarService {
         car.setVin(normalizedVin);
         car.setPricePerDay(request.getPricePerDay());
 
+        return mapToResponse(carRepository.save(car));
+    }
+
+    // NEW: Method for Admins to re-approve a car after a Partner updates it
+    @Transactional
+    public CarResponseDto approveCarVisibility(Long id) {
+        Car car = findCarById(id);
+        car.setAvailable(true);
         return mapToResponse(carRepository.save(car));
     }
 

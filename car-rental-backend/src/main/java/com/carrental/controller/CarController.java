@@ -55,20 +55,28 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    // FIXED: Now allows Partners through the door so the Service can check if they own it!
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
     public ResponseEntity<ApiResponse<CarResponseDto>> updateCar(
             @PathVariable Long id,
             @Valid @RequestBody CarRequestDto request,
-            Principal principal) { // <-- Pass Principal here
+            Principal principal) {
         return ResponseEntity.ok(ApiResponse.success("Car updated successfully", carService.updateCar(id, request, principal.getName())));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    // FIXED: Allowed Partners to delete their own cars
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
     public ResponseEntity<ApiResponse<Void>> deleteCar(
             @PathVariable Long id,
-            Principal principal) { // <-- Pass Principal here
+            Principal principal) {
         carService.deleteCar(id, principal.getName());
         return ResponseEntity.ok(ApiResponse.success("Car deleted successfully", null));
+    }
+    // NEW: Admin endpoint to approve a car after it was updated by a Partner
+    @PatchMapping("/{id}/approve")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<CarResponseDto>> approveCar(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Car approved and is now available for rent", carService.approveCarVisibility(id)));
     }
 }

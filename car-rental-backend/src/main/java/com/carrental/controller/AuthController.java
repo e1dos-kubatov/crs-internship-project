@@ -23,27 +23,37 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<JwtResponse>> register(@Valid @RequestBody UserRegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
-                "User registered successfully",
-                authService.register(request)
-        ));
+    public ResponseEntity<ApiResponse<JwtResponse>> register(
+            @Valid @RequestBody UserRegisterRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(
+                        "User registered successfully",
+                        authService.register(request)
+                )
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody UserLoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(
-                "Login successful",
-                authService.login(request)
-        ));
+    public ResponseEntity<ApiResponse<JwtResponse>> login(
+            @Valid @RequestBody UserLoginRequest request) {
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Login successful",
+                        authService.login(request)
+                )
+        );
     }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<UserResponseDto>> me(Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(
-                "Current user retrieved successfully",
-                authService.getCurrentUser(principal.getName())
-        ));
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Current user retrieved successfully",
+                        authService.getCurrentUser(principal.getName())
+                )
+        );
     }
 }

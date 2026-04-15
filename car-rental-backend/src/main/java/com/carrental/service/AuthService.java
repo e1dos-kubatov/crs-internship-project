@@ -31,6 +31,7 @@ public class AuthService {
     @Transactional
     public JwtResponse register(UserRegisterRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
+
         if (userRepository.findByEmail(normalizedEmail).isPresent()) {
             throw new BadRequestException("Email already exists");
         }
@@ -52,6 +53,16 @@ public class AuthService {
 
     public JwtResponse login(UserLoginRequest request) {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // 🔥 FIX: проверяем provider ДО authenticate
+        if (user.getProvider() != Provider.LOCAL) {
+            throw new BadRequestException("This account uses OAuth2 login (Google/GitHub)");
+        }
+
+        // 🔐 только LOCAL пользователи используют пароль
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         normalizedEmail,
@@ -59,14 +70,8 @@ public class AuthService {
                 )
         );
 
-        User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new BadRequestException("This account uses OAuth2 login. Please sign in with your provider.");
-        }
-
-        if (Boolean.TRUE.equals(request.getPartnerAccess()) && user.getRole() == Role.ROLE_CUSTOMER) {
+        if (Boolean.TRUE.equals(request.getPartnerAccess()) &&
+                user.getRole() == Role.ROLE_CUSTOMER) {
             user.setRole(Role.ROLE_PARTNER);
             userRepository.save(user);
         }

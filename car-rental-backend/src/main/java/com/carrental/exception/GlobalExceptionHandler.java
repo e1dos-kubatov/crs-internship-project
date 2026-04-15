@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
@@ -68,6 +69,14 @@ public class GlobalExceptionHandler {
         log.error("Database integrity violation", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Database constraint violation. Check VIN uniqueness and required fields."));
+    }
+
+    // 🔥 ADDED THIS: Catches malformed JSON from Postman/Frontend
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        log.warn("Malformed JSON request received", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Malformed JSON request. Please check your syntax for extra commas, missing quotes, or brackets."));
     }
 
     @ExceptionHandler(Exception.class)

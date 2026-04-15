@@ -23,9 +23,12 @@ public class CarService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CarResponseDto createCar(CarRequestDto request) {
+    public CarResponseDto createCar(CarRequestDto request, String userEmail) {
+        User owner = findUserByEmail(userEmail);
+
         String normalizedVin = normalizeVin(request.getVin());
         validateVinAvailability(normalizedVin, null);
+
         Car car = Car.builder()
                 .brand(request.getBrand())
                 .model(request.getModel())
@@ -33,7 +36,9 @@ public class CarService {
                 .vin(normalizedVin)
                 .pricePerDay(request.getPricePerDay())
                 .available(true)
+                .owner(owner)
                 .build();
+
         return mapToResponse(carRepository.save(car));
     }
 
@@ -61,21 +66,34 @@ public class CarService {
     }
 
     @Transactional
-    public CarResponseDto updateCar(Long id, CarRequestDto request) {
+    // FIXED: Added userEmail to verify ownership
+    public CarResponseDto updateCar(Long id, CarRequestDto request, String userEmail) {
         Car car = findCarById(id);
+
+        // SECURITY CHECK: Make sure this user is allowed to update this car
+        verifyOwnershipOrAdmin(car, userEmail);
+
         String normalizedVin = normalizeVin(request.getVin());
         validateVinAvailability(normalizedVin, id);
+
         car.setBrand(request.getBrand());
         car.setModel(request.getModel());
         car.setYear(request.getYear());
         car.setVin(normalizedVin);
         car.setPricePerDay(request.getPricePerDay());
+
         return mapToResponse(carRepository.save(car));
     }
 
     @Transactional
-    public void deleteCar(Long id) {
-        carRepository.delete(findCarById(id));
+    // FIXED: Added userEmail to verify ownership before deleting
+    public void deleteCar(Long id, String userEmail) {
+        Car car = findCarById(id);
+
+        // SECURITY CHECK: Make sure this user is allowed to delete this car
+        verifyOwnershipOrAdmin(car, userEmail);
+
+        carRepository.delete(car);
     }
 
     @Transactional
@@ -109,6 +127,22 @@ public class CarService {
     private Car findCarById(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found"));
+    }
+
+    // NEW HELPER METHOD: Checks if the user is an Admin OR the Owner of the car
+    private void verifyOwnershipOrAdmin(Car car, String userEmail) {
+        User currentUser = findUserByEmail(userEmail);
+
+        // Check if the user is an admin
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN") ||
+                currentUser.getRole().name().equals("ROLE_ADMIN");
+
+        // If they are NOT an admin, check if they own the car
+        if (!isAdmin) {
+            if (car.getOwner() == null || !car.getOwner().getId().equals(currentUser.getId())) {
+                throw new BadRequestException("Access Denied: You can only modify your own cars!");
+            }
+        }
     }
 
     private void validateVinAvailability(String normalizedVin, Long currentCarId) {

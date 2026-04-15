@@ -74,19 +74,21 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ИСПРАВЛЕНО: Разрешаем доступ к статике правильно
+                        // Public static resources
                         .requestMatchers("/", "/error", "/favicon.ico", "/static/**", "/public/**").permitAll()
-                        // Если ресурсы лежат в корне или подпапках, лучше разрешить их так:
                         .requestMatchers("/index.html", "/*.png", "/*.gif", "/*.svg", "/*.jpg", "/*.css", "/*.js").permitAll()
 
-                        // API эндпоинты
-                        .requestMatchers("/api/cars/**", "/api/auth/**").permitAll()
+                        // PUBLIC API ENDPOINTS (FIXED)
+                        // Only GET requests for viewing cars are public
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/cars", "/api/cars/{id}").permitAll()
+                        // Auth endpoints remain fully public
+                        .requestMatchers("/api/auth/**").permitAll()
 
-                        // OAuth2
+                        // Public OAuth2 endpoints
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
-                        // Роли
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // SECURED ENDPOINTS
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN")
                         .requestMatchers("/api/rentals/**", "/api/bookings/**", "/api/user/**").authenticated()
 
                         .anyRequest().authenticated()

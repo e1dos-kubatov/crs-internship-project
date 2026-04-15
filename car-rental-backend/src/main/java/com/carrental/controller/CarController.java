@@ -22,10 +22,14 @@ public class CarController {
     private final CarService carService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<CarResponseDto>> createCar(@Valid @RequestBody CarRequestDto request) {
+    // FIXED: Allowed both ADMIN and PARTNER to create cars directly
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
+    public ResponseEntity<ApiResponse<CarResponseDto>> createCar(
+            @Valid @RequestBody CarRequestDto request,
+            Principal principal) { // Added Principal to get the user's email
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Car created successfully", carService.createCar(request)));
+                .body(ApiResponse.success("Car created successfully", carService.createCar(request, principal.getName())));
     }
 
     @GetMapping
@@ -34,13 +38,13 @@ public class CarController {
     }
 
     @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<CarResponseDto>>> getAllCarsForAdmin() {
         return ResponseEntity.ok(ApiResponse.success("Admin cars retrieved successfully", carService.getAllCarsForAdmin()));
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('PARTNER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_PARTNER', 'ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<CarResponseDto>>> getMyCars(Principal principal) {
         return ResponseEntity.ok(ApiResponse.success("Owned cars retrieved successfully", carService.getCarsOwnedBy(principal.getName())));
     }
@@ -51,15 +55,20 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<CarResponseDto>> updateCar(@PathVariable Long id, @Valid @RequestBody CarRequestDto request) {
-        return ResponseEntity.ok(ApiResponse.success("Car updated successfully", carService.updateCar(id, request)));
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<CarResponseDto>> updateCar(
+            @PathVariable Long id,
+            @Valid @RequestBody CarRequestDto request,
+            Principal principal) { // <-- Pass Principal here
+        return ResponseEntity.ok(ApiResponse.success("Car updated successfully", carService.updateCar(id, request, principal.getName())));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteCar(@PathVariable Long id) {
-        carService.deleteCar(id);
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteCar(
+            @PathVariable Long id,
+            Principal principal) { // <-- Pass Principal here
+        carService.deleteCar(id, principal.getName());
         return ResponseEntity.ok(ApiResponse.success("Car deleted successfully", null));
     }
 }

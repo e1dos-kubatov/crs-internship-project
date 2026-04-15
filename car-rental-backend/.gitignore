@@ -5,3 +5,6 @@ car-rental-backend/target/
 # Файлы настроек самой IntelliJ IDEA (их тоже не нужно пушить)
 .idea/
 *.iml
+
+.env
+car-rental-backend/.env

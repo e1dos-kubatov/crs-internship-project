@@ -37,7 +37,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             throws IOException, ServletException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = normalize((String) oAuth2User.getAttribute("email"));
+        String email = normalize(safeGetString(oAuth2User, "email"));
 
         User user = resolveUser(authentication, oAuth2User, email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -73,10 +73,16 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
     private String extractProviderId(Provider provider, OAuth2User oAuth2User, String authName) {
         return switch (provider) {
-            case GOOGLE -> firstNonBlank((String) oAuth2User.getAttribute("sub"), authName, (String) oAuth2User.getAttribute("id"));
-            case GITHUB -> firstNonBlank((String) oAuth2User.getAttribute("id"), authName);
+            case GOOGLE -> firstNonBlank(safeGetString(oAuth2User, "sub"), authName, safeGetString(oAuth2User, "id"));
+            case GITHUB -> firstNonBlank(safeGetString(oAuth2User, "id"), authName);
             default -> null;
         };
+    }
+
+    // Safely converts Integer, Long, or String to String without throwing ClassCastException
+    private String safeGetString(OAuth2User oAuth2User, String key) {
+        Object value = oAuth2User.getAttribute(key);
+        return value == null ? null : String.valueOf(value);
     }
 
     private String normalize(String value) {

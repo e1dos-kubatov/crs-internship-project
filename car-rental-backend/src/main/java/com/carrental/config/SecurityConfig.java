@@ -58,7 +58,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -72,15 +72,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/static/**").permitAll()
-                        .requestMatchers("/api/cars/**").permitAll()
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
-                        .requestMatchers("/login/oauth2/**").permitAll()
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // ИСПРАВЛЕНО: Разрешаем доступ к статике правильно
+                        .requestMatchers("/", "/error", "/favicon.ico", "/static/**", "/public/**").permitAll()
+                        // Если ресурсы лежат в корне или подпапках, лучше разрешить их так:
+                        .requestMatchers("/index.html", "/*.png", "/*.gif", "/*.svg", "/*.jpg", "/*.css", "/*.js").permitAll()
+
+                        // API эндпоинты
+                        .requestMatchers("/api/cars/**", "/api/auth/**").permitAll()
+
+                        // OAuth2
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                        // Роли
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/rentals/**", "/api/bookings/**", "/api/user/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

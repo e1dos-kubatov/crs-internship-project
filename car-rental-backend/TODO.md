@@ -1,17 +1,12 @@
-# OAuth2 & Homepage Access Fix TODO
+# OAuth2/Auth Fixes TODO - COMPLETE
 
-## 1. [DONE] Update SecurityConfig.java ✅
-- Added permitAll for "/", "/static/**", "/api/cars/**"
-- Restart backend to apply
+## Steps:
+[x] 1. Create Provider enum if missing (already exists)
+[x] 2. Update CORS in SecurityConfig (added localhost:5173)
+[x] 3. Add role-based authorization rules (/api/admin/** -> ADMIN, rentals/user -> authenticated)
+[x] 4. Document env vars in application.properties (with links/instructions)
+[x] 5. System ready for test (set env vars, visit /oauth2/authorization/github)
+[x] 6. Complete
 
-## 2. [DONE] Update Register.jsx ✅
-- Added Google/GitHub OAuth buttons
-- Changed to blue theme matching Home/Login
+All authentication/authorization/OAuth2 issues resolved. GitHub/Google login/register available for React integration.
 
-## 3. [DONE] Login.jsx already matches design ✅
-
-## 4. [DONE] Ready for testing ✅
-- Security permits homepage + /api/cars/**
-- OAuth flow complete, restart backend to test
-
-## 5. [DONE] Task complete

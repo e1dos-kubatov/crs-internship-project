@@ -7,9 +7,7 @@ import com.carrental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +16,14 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+        // Let Spring fetch the user details from Google/GitHub
+        OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
         Provider provider = Provider.valueOf(registrationId);
@@ -35,47 +33,49 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String name = extractName(attributes, email);
         String providerId = extractProviderId(provider, attributes);
 
-        userRepository.findByEmail(email)
-                .map(user -> updateExistingOAuthUser(user, provider, providerId, name))
-                .orElseGet(() -> registerNewUser(email, name, provider, providerId));
+        Optional<User> userOptional = userRepository.findByEmail(email);
 
-        return new DefaultOAuth2User(
-                oAuth2User.getAuthorities(),
-                attributes,
-                getNameAttributeKey(provider, attributes)
-        );
+        if (userOptional.isPresent()) {
+            updateExistingOAuthUser(userOptional.get(), provider, providerId, name);
+        } else {
+            registerNewUser(email, name, provider, providerId);
+        }
+
+        // Return the original OAuth2User object. Our CustomOAuth2SuccessHandler will handle the rest.
+        return oAuth2User;
     }
 
-    private User registerNewUser(String email, String name, Provider provider, String providerId) {
-        return userRepository.save(User.builder()
+    private void registerNewUser(String email, String name, Provider provider, String providerId) {
+        User user = User.builder()
                 .name(name)
                 .email(email)
                 .provider(provider)
                 .providerId(providerId)
                 .role(Role.ROLE_CUSTOMER)
-                .password("") // OAuth user, no password needed
-                .build());
+                .build();
+        userRepository.save(user);
     }
 
-    private User updateExistingOAuthUser(User user, Provider provider, String providerId, String name) {
+    private void updateExistingOAuthUser(User user, Provider provider, String providerId, String name) {
         user.setProvider(provider);
         user.setProviderId(providerId);
         if (name != null && !name.isBlank()) {
             user.setName(name);
         }
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
-private String extractEmail(Provider provider, Map<String, Object> attributes) {
+    private String extractEmail(Provider provider, Map<String, Object> attributes) {
         String email = getString(attributes, "email");
         if (email != null && !email.isBlank()) {
             return email.trim().toLowerCase();
         }
-        // Fallback for providers that may not return email
+
+        // Fallback if user set email to private on GitHub
         String name = getString(attributes, "name");
         String id = extractProviderId(provider, attributes);
-        String fallbackEmail = (name != null ? name.replaceAll("[^a-zA-Z0-9]", "").toLowerCase() : "user") + "_" + id + "@oauth.local";
-        return fallbackEmail;
+        String cleanName = name != null ? name.replaceAll("[^a-zA-Z0-9]", "").toLowerCase() : "user";
+        return cleanName + "_" + id + "@" + provider.name().toLowerCase() + ".local";
     }
 
     private String extractName(Map<String, Object> attributes, String email) {
@@ -91,16 +91,8 @@ private String extractEmail(Provider provider, Map<String, Object> attributes) {
         };
     }
 
-    private String getNameAttributeKey(Provider provider, Map<String, Object> attributes) {
-        return switch (provider) {
-            case GOOGLE -> attributes.containsKey("email") ? "email" : "sub";
-            case GITHUB -> "id";
-            default -> "email";
-        };
-    }
-
     private String getString(Map<String, Object> attributes, String key) {
         Object value = attributes.get(key);
-        return value == null ? null : value.toString();
+        return value == null ? null : String.valueOf(value);
     }
 }

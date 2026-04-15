@@ -16,7 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPERADMIN')")
+// ИЗМЕНЕНО: hasAuthority вместо hasRole, чтобы избежать конфликта с префиксом "ROLE_"
+@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_SUPERADMIN')")
 public class AdminController {
 
     private final AdminService adminService;
@@ -41,7 +42,8 @@ public class AdminController {
     }
 
     @GetMapping("/logs")
-    @PreAuthorize("hasRole('ROLE_SUPERADMIN')")
+    // ИЗМЕНЕНО: То же самое здесь, используем hasAuthority
+    @PreAuthorize("hasAuthority('ROLE_SUPERADMIN')")
     public ResponseEntity<ApiResponse<List<AuditLogResponseDto>>> getAuditLogs() {
         return ResponseEntity.ok(
                 ApiResponse.success("Audit logs retrieved", adminService.getAuditLogs())

@@ -1,10 +1,8 @@
 import React from 'react';
 import { useRental } from '../context/RentalContext';
-import { useLang } from '../context/LangContext';
 
 const Filters = () => {
   const { filters, updateFilters, filteredCars } = useRental();
-  const { t } = useLang();
 
   const types = ['sedan', 'suv', 'hatchback'];
   const transmissions = ['auto', 'manual'];
@@ -16,12 +14,13 @@ const Filters = () => {
       type: [],
       transmission: [],
       fuel: [],
-      sort: 'price-asc'
+      sort: 'price-asc',
+      query: ''
     });
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 sticky top-24 h-fit lg:w-80 space-y-6">
+    <div className="sticky top-24 h-fit space-y-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur md:p-8 lg:w-80">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-gray-900">Filters</h3>
         <button
@@ -34,6 +33,16 @@ const Filters = () => {
 
       {/* Price Range */}
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">Search</label>
+        <input
+          value={filters.query}
+          onChange={(e) => updateFilters({ query: e.target.value })}
+          placeholder="Toyota, BMW, SUV..."
+          className="w-full rounded-2xl border border-slate-200 p-3 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">Price per day</label>
         <div className="space-y-2">
           <div className="flex justify-between text-xs text-gray-500">
@@ -43,7 +52,7 @@ const Filters = () => {
           <input
             type="range"
             min="0"
-            max="200"
+            max="500"
             value={filters.price[1]}
             onChange={(e) => updateFilters({ price: [filters.price[0], Number(e.target.value)] })}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cwd-blue"
@@ -51,7 +60,7 @@ const Filters = () => {
           <input
             type="range"
             min="0"
-            max="200"
+            max="500"
             value={filters.price[0]}
             onChange={(e) => updateFilters({ price: [Number(e.target.value), filters.price[1]] })}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cwd-blue"
@@ -105,6 +114,29 @@ const Filters = () => {
         </div>
       </div>
 
+      {/* Fuel */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">Fuel</label>
+        <div className="space-y-2">
+          {fuels.map(fuel => (
+            <label key={fuel} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.fuel.includes(fuel)}
+                onChange={(e) => {
+                  const nextFuel = e.target.checked
+                    ? [...filters.fuel, fuel]
+                    : filters.fuel.filter(item => item !== fuel);
+                  updateFilters({ fuel: nextFuel });
+                }}
+                className="rounded border-gray-300 text-cwd-blue focus:ring-cwd-blue"
+              />
+              <span className="text-sm capitalize">{fuel}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* Sort */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">Sort by</label>
@@ -115,6 +147,7 @@ const Filters = () => {
         >
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
+          <option value="newest">Newest first</option>
         </select>
       </div>
 

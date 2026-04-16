@@ -1,106 +1,77 @@
 import React, { useState } from 'react';
-import { useLang } from '../context/LangContext';
-import { useNavigate } from 'react-router-dom';
+import { Search, XCircle } from 'lucide-react';
+import { rentalsApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
+import { useRental } from '../context/RentalContext';
 
 const CancelBooking = () => {
-  const { t } = useLang();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { getMyRentals } = useRental();
   const [bookingId, setBookingId] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [status, setStatus] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleCancel = async (e) => {
     e.preventDefault();
-    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-    const booking = bookings.find(b => b.id === parseInt(bookingId) && b.customer.name.toLowerCase().includes(lastName.toLowerCase()));
-    if (booking) {
-      const updatedBookings = bookings.filter(b => b !== booking);
-      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
-      setSuccess(true);
-    } else {
-      setError('Бронирование не найдено');
+    setLoading(true);
+    setError('');
+    setStatus('');
+
+    try {
+      if (user.role === 'admin') {
+        await rentalsApi.updateStatus(bookingId, 'CANCELLED');
+        setStatus('Rental cancelled in the backend.');
+      } else {
+        const rentals = await getMyRentals();
+        const rental = rentals.find((item) => String(item.id) === String(bookingId));
+        if (!rental) {
+          setError('Rental not found in your account.');
+        } else {
+          setStatus('Your rental was found. Backend cancellation is admin-only, so contact support or an admin to cancel it.');
+        }
+      }
+    } catch (cancelError) {
+      setError(cancelError.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-2xl flex items-center justify-center">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Бронирование отменено</h2>
-          <p className="text-gray-600 mb-8">Ваше бронирование успешно отменено.</p>
-          <button
-            onClick={() => navigate('/account')}
-            className="w-full bg-cwd-blue text-white font-bold py-3 px-6 rounded-xl hover:bg-opacity-90 transition-all"
-          >
-            В личный кабинет
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Отменить бронирование</h1>
-        <p className="text-gray-600 mb-8 text-center">Введите данные своего бронирования ниже, чтобы отменить его.</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Номер вашего бронирования <span className="text-red-500">*</span>
-            </label>
+    <div className="min-h-screen bg-transparent px-4 py-16">
+      <div className="mx-auto max-w-xl rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-xl backdrop-blur">
+        <div className="mb-8 text-center">
+          <XCircle className="mx-auto mb-4 h-14 w-14 text-red-600" />
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-red-600">Rental support</p>
+          <h1 className="mt-3 text-3xl font-black text-slate-950">Cancel rental</h1>
+          <p className="mt-3 text-slate-600">Admins can cancel directly. Partners can verify the rental and contact support.</p>
+        </div>
+
+        <form onSubmit={handleCancel} className="space-y-5">
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">Rental ID</span>
             <input
-              type="text"
+              type="number"
               value={bookingId}
               onChange={(e) => setBookingId(e.target.value)}
-              placeholder="Введите номер вашего бронирования"
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
+              className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+              placeholder="Enter rental ID"
               required
             />
-          </div>
+          </label>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Фамилия <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Фамилия"
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
-              required
-            />
-          </div>
+          {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
+          {status && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{status}</div>}
 
-          {error && (
-            <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
-              {error}
-            </div>
-          )}
-
-          <div className="flex gap-4 pt-4">
-            <button
-              type="button"
-              onClick={() => navigate('/account')}
-              className="flex-1 bg-gray-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-600 transition-all"
-            >
-              Дом
-            </button>
-            <button
-              type="submit"
-              className="flex-1 bg-red-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-red-700 transition-all"
-            >
-              Отменить бронирование
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-6 py-4 font-black text-white transition hover:bg-red-700 disabled:opacity-70"
+          >
+            <Search className="h-5 w-5" />
+            {loading ? 'Checking...' : user.role === 'admin' ? 'Cancel rental' : 'Find my rental'}
+          </button>
         </form>
       </div>
     </div>
@@ -108,4 +79,3 @@ const CancelBooking = () => {
 };
 
 export default CancelBooking;
-

@@ -4,6 +4,7 @@ import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import RentalProvider from "./context/RentalContext";
 import "./index.css";
+import "./App.css";
 
 import { BookingProvider } from "./components/BookingContext";
 

@@ -28,7 +28,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private Role role = Role.ROLE_CUSTOMER;
+    private Role role = Role.ROLE_PARTNER;
 
     // ===== PROVIDER =====
     @Enumerated(EnumType.STRING)

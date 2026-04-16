@@ -23,14 +23,14 @@ public class RentalController {
     private final RentalService rentalService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PARTNER', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PARTNER')")
     public ResponseEntity<ApiResponse<RentalResponseDto>> createRental(@Valid @RequestBody RentalRequestDto request, Principal principal) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Rental created successfully", rentalService.createRental(request, principal.getName())));
     }
 
     @GetMapping("/my-rentals")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PARTNER', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PARTNER')")
     public ResponseEntity<ApiResponse<List<RentalResponseDto>>> getCurrentUserRentals(Principal principal) {
         return ResponseEntity.ok(ApiResponse.success("User rentals retrieved", rentalService.getUserRentals(principal.getName())));
     }

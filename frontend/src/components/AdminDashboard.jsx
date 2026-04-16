@@ -1,74 +1,91 @@
-import React from 'react';
-import { Link, Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { CarFront, ClipboardList, LogOut, UsersRound } from 'lucide-react';
+import { Link, Route, Routes } from 'react-router-dom';
+import { adminApi, carsApi, rentalsApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { useRental } from '../context/RentalContext';
 import ManageCars from './ManageCars';
 import AdminBookings from './AdminBookings';
 import AdminUsers from './AdminUsers';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
-  const { cars } = useRental();
+  const [stats, setStats] = useState({ cars: 0, bookings: 0, users: 0 });
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const [cars, bookings, users] = await Promise.all([
+          carsApi.adminList(),
+          rentalsApi.all(),
+          adminApi.users(),
+        ]);
+        setStats({ cars: cars.length, bookings: bookings.length, users: users.length });
+      } catch {
+        setStats((prev) => prev);
+      }
+    };
+    loadStats();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">Панель администратора</h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">Привет, {user.name}</span>
-              <button
-                onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-colors"
-              >
-                Выход
-              </button>
-            </div>
+    <div className="min-h-screen bg-transparent">
+      <header className="border-b border-white/70 bg-white/80 shadow-sm backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">Admin workspace</p>
+            <h1 className="mt-2 text-3xl font-black text-slate-950">Control center</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-slate-600">Hi, {user.name}</span>
+            <button onClick={logout} className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2 font-bold text-white transition hover:bg-red-700">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
           </div>
         </div>
       </header>
 
-      <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <Link to="/admin/cars" className="text-lg font-medium text-gray-900 py-4 px-1 border-b-2 border-cwd-blue">
-              Автомобили ({cars.length})
-            </Link>
-            <Link to="/admin/bookings" className="text-lg font-medium text-gray-700 hover:text-gray-900 py-4 px-1 border-b-2 border-transparent">
-              Бронирования ({JSON.parse(localStorage.getItem('bookings') || '[]').length})
-            </Link>
-            <Link to="/admin/users" className="text-lg font-medium text-gray-700 hover:text-gray-900 py-4 px-1 border-b-2 border-transparent">
-              Пользователи ({JSON.parse(localStorage.getItem('users') || '[]').length})
-            </Link>
-          </div>
+      <nav className="border-b border-white/70 bg-white/70 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/admin/cars" className="border-b-2 border-cwd-blue py-4 text-base font-black text-slate-950">
+            Cars ({stats.cars})
+          </Link>
+          <Link to="/admin/bookings" className="border-b-2 border-transparent py-4 text-base font-bold text-slate-600 hover:text-slate-950">
+            Rentals ({stats.bookings})
+          </Link>
+          <Link to="/admin/users" className="border-b-2 border-transparent py-4 text-base font-bold text-slate-600 hover:text-slate-950">
+            Users ({stats.users})
+          </Link>
         </div>
       </nav>
 
       <main>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
           <Routes>
             <Route path="/cars" element={<ManageCars />} />
+            <Route path="/bookings" element={<AdminBookings />} />
+            <Route path="/users" element={<AdminUsers />} />
             <Route path="/" element={
               <div className="px-4 py-6 sm:px-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  <div className="bg-white overflow-hidden shadow rounded-lg p-6">
-                    <dt className="text-sm font-medium text-gray-500 mb-2">Автомобили</dt>
-                    <dd className="text-3xl font-bold text-gray-900">{cars.length}</dd>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
+                    <CarFront className="mb-4 h-8 w-8 text-orange-600" />
+                    <dt className="text-sm font-bold text-slate-500">Cars</dt>
+                    <dd className="mt-2 text-4xl font-black text-slate-950">{stats.cars}</dd>
                   </div>
-                  <div className="bg-white overflow-hidden shadow rounded-lg p-6">
-                    <dt className="text-sm font-medium text-gray-500 mb-2">Бронирования</dt>
-                    <dd className="text-3xl font-bold text-gray-900">{JSON.parse(localStorage.getItem('bookings') || '[]').length}</dd>
+                  <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
+                    <ClipboardList className="mb-4 h-8 w-8 text-sky-700" />
+                    <dt className="text-sm font-bold text-slate-500">Rentals</dt>
+                    <dd className="mt-2 text-4xl font-black text-slate-950">{stats.bookings}</dd>
                   </div>
-                  <div className="bg-white overflow-hidden shadow rounded-lg p-6">
-                    <dt className="text-sm font-medium text-gray-500 mb-2">Пользователи</dt>
-                    <dd className="text-3xl font-bold text-gray-900">{JSON.parse(localStorage.getItem('users') || '[]').length || 1}</dd>
+                  <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
+                    <UsersRound className="mb-4 h-8 w-8 text-emerald-600" />
+                    <dt className="text-sm font-bold text-slate-500">Users</dt>
+                    <dd className="mt-2 text-4xl font-black text-slate-950">{stats.users}</dd>
                   </div>
                 </div>
               </div>
             } />
-<Route path="/bookings" element={<AdminBookings />} />
-            <Route path="/users" element={<AdminUsers />} />
           </Routes>
         </div>
       </main>
@@ -77,5 +94,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
-

@@ -1,147 +1,144 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { CalendarDays, CheckCircle2, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useRental } from '../context/RentalContext';
 
 const BookingModal = ({ car, onClose }) => {
-  const { booking, setBooking, calculateTotal } = useRental();
+  const { user } = useAuth();
+  const { setBooking, createRental } = useRental();
+  const navigate = useNavigate();
   const [pickupDate, setPickupDate] = useState('');
   const [dropoffDate, setDropoffDate] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    setPickupDate(today);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
+    setPickupDate(today);
     setDropoffDate(tomorrow.toISOString().split('T')[0]);
   }, []);
 
-  const days = pickupDate && dropoffDate ? Math.ceil((new Date(dropoffDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24)) : 1;
+  const days = pickupDate && dropoffDate
+    ? Math.max(1, Math.ceil((new Date(dropoffDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24)) + 1)
+    : 1;
   const total = car.price * days;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const bookingData = {
-      id: Date.now(),
-      carId: car.id,
-      car: car.model.en,
-      dates: { pickup: pickupDate, dropoff: dropoffDate },
-      customer: { name, phone },
-      total,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
-    setBooking(bookingData);
-    
-    // Save to global bookings
-    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-    bookings.push(bookingData);
-    localStorage.setItem('bookings', JSON.stringify(bookings));
-    
-    setSubmitted(true);
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+    try {
+      const rental = await createRental({
+        carId: car.id,
+        startDate: pickupDate,
+        endDate: dropoffDate,
+      });
+      setBooking({
+        ...rental,
+        dates: { pickup: pickupDate, dropoff: dropoffDate },
+        total,
+      });
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-3xl p-12 max-w-md w-full text-center shadow-2xl animate-pulse">
-          <div className="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">Booking Confirmed!</h3>
-          <p className="text-gray-600 mb-8">Total: ${total}</p>
-          <p className="text-sm text-gray-500">Check your email for confirmation</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur">
+        <div className="w-full max-w-md rounded-[2rem] bg-white p-10 text-center shadow-2xl">
+          <CheckCircle2 className="mx-auto mb-5 h-20 w-20 text-emerald-500" />
+          <h3 className="text-3xl font-black text-slate-950">Rental created</h3>
+          <p className="mt-3 text-slate-600">Your booking is now saved in the Spring Boot backend.</p>
+          <p className="mt-5 rounded-2xl bg-emerald-50 px-4 py-3 text-lg font-black text-emerald-700">${total}</p>
+          <button
+            onClick={() => {
+              onClose();
+              navigate('/account/bookings');
+            }}
+            className="mt-6 w-full rounded-2xl bg-slate-950 px-6 py-4 font-black text-white"
+          >
+            View my rentals
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl p-8 md:p-12 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Book {car.model.en}</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] bg-white p-6 shadow-2xl md:p-8">
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">Backend rental</p>
+            <h2 className="mt-2 text-3xl font-black text-slate-950">Book {car.model.en}</h2>
+          </div>
+          <button onClick={onClose} className="rounded-2xl bg-slate-100 p-3 text-slate-700 transition hover:bg-slate-200">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <img src={car.img} alt={car.model.en} className="w-full h-48 object-cover rounded-2xl mb-4" />
-          </div>
-          
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
-            <input
-              type="date"
-              value={pickupDate}
-              onChange={(e) => setPickupDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <img src={car.img} alt={car.model.en} className="h-52 w-full rounded-3xl object-cover" />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Pickup date</span>
+              <input
+                type="date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+                required
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Dropoff date</span>
+              <input
+                type="date"
+                value={dropoffDate}
+                onChange={(e) => setDropoffDate(e.target.value)}
+                min={pickupDate || new Date().toISOString().split('T')[0]}
+                className="w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+                required
+              />
+            </label>
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Dropoff Date</label>
-            <input
-              type="date"
-              value={dropoffDate}
-              onChange={(e) => setDropoffDate(e.target.value)}
-              min={pickupDate || new Date().toISOString().split('T')[0]}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
-              required
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
-              placeholder="John Doe"
-              required
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Phone</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cwd-blue focus:border-transparent"
-              placeholder="+996..."
-              required
-            />
-          </div>
-
-          <div className="pt-4 border-t border-gray-200 space-y-3">
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total ({days} days):</span>
-              <span>${total}</span>
+          <div className="rounded-3xl bg-slate-50 p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-600">
+              <CalendarDays className="h-4 w-4" />
+              {days} rental days
             </div>
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-8 rounded-2xl text-lg shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1"
-            >
-              Confirm Booking
-            </button>
+            <div className="flex items-end justify-between">
+              <span className="text-slate-500">${car.price}/day</span>
+              <strong className="text-3xl text-slate-950">${total}</strong>
+            </div>
           </div>
+
+          {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-sky-700 px-6 py-4 font-black text-white shadow-xl shadow-sky-900/20 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {submitting ? 'Creating rental...' : user ? 'Confirm booking' : 'Login to book'}
+          </button>
         </form>
       </div>
     </div>
@@ -149,4 +146,3 @@ const BookingModal = ({ car, onClose }) => {
 };
 
 export default BookingModal;
-

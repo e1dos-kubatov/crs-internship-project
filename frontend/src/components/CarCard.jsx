@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import HeartIcon from './icons/HeartIcon';
 
 const CarCard = ({ car }) => {
-  const { toggleFavorite, favorites, calculateTotal } = useRental();
+  const { toggleFavorite, favorites } = useRental();
   const isFavorite = favorites.includes(car.id);
 
   const specs = [
@@ -14,7 +14,7 @@ const CarCard = ({ car }) => {
   ];
 
   return (
-    <div className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2 h-80 flex flex-col">
+    <div className="group flex h-[23rem] flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
         <img 
           src={car.img} 
@@ -27,14 +27,14 @@ const CarCard = ({ car }) => {
         >
 <HeartIcon className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-gray-600'}`} />
         </button>
-        <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-bold">
-          Available
+        <div className="absolute bottom-4 left-4 bg-slate-950/75 text-white px-3 py-1 rounded-full text-xs font-bold">
+          {car.available ? 'Available' : car.status}
         </div>
       </div>
       
       <div className="p-6 flex flex-col flex-1">
         <div className="mb-3">
-          <h3 className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">{car.model.en}</h3>
+          <h3 className="text-xl font-black text-slate-950 mb-1 line-clamp-1">{car.model.en}</h3>
           <div className="flex flex-wrap gap-1 text-xs text-gray-500">
             {specs.map((spec, idx) => (
               <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full">
@@ -45,7 +45,7 @@ const CarCard = ({ car }) => {
         </div>
         
         <div className="flex items-center justify-between mb-6 mt-auto">
-          <div className="text-2xl font-bold text-cwd-blue">
+          <div className="text-2xl font-black text-cwd-blue">
             ${car.price}
             <span className="text-lg font-normal text-gray-500">/day</span>
           </div>

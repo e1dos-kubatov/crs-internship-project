@@ -1,18 +1,18 @@
 :root {
-  --cwd-blue: #00008b;
-  --cwd-dark: #000050;
-  --cwd-accent: #0056b3;
-  --cwd-light: #f4f7f9;
+  --cwd-blue: #0369a1;
+  --cwd-dark: #0f172a;
+  --cwd-accent: #c2410c;
+  --cwd-light: #fff7ed;
   --cwd-white: #ffffff;
-  --cwd-text: #333333;
-  --cwd-border: #d1d8e0;
+  --cwd-text: #0f172a;
+  --cwd-border: #e2e8f0;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
   color: var(--cwd-text);
-  background-color: var(--cwd-white);
+  background: radial-gradient(circle at top left, #fff7ed, #f8fafc 45%, #e0f2fe);
   -webkit-font-smoothing: antialiased;
 }
 

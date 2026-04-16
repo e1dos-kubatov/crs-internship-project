@@ -1,203 +1,229 @@
-import React, { useState, useEffect } from 'react';
-import { useRental } from '../context/RentalContext';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Check, Pencil, Plus, RefreshCcw, Trash2, X } from 'lucide-react';
+import { carsApi } from '../api/client';
+import { carFromApi } from '../api/adapters';
 import { useAuth } from '../context/AuthContext';
-import CarCard from './CarCard';
+import { useRental } from '../context/RentalContext';
+
+const emptyCar = {
+  brand: '',
+  modelName: '',
+  year: new Date().getFullYear(),
+  vin: '',
+  price: '',
+  description: '',
+};
+
+const statusBadge = {
+  APPROVED: 'bg-emerald-100 text-emerald-700',
+  PENDING: 'bg-amber-100 text-amber-700',
+  REJECTED: 'bg-red-100 text-red-700',
+};
 
 const ManageCars = () => {
-  const { cars, setCars, filteredCars, updateFilters } = useRental();
   const { user } = useAuth();
+  const { getMyCars, getAdminCars, saveCar, createOrder, deleteCar } = useRental();
+  const [cars, setCars] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newCar, setNewCar] = useState({
-    model: { en: '', ru: '', kg: '' },
-    price: '',
-    transmission: 'Auto',
-    seats: 5,
-    img: '',
-    type: 'sedan',
-    fuel: 'gas'
-  });
+  const [newCar, setNewCar] = useState(emptyCar);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const addCar = () => {
-    if (newCar.price < 10 || newCar.price > 500) {
-      setError('Цена должна быть от 10 до 500');
-      return;
-    }
-    const id = Date.now();
-    const car = { id, ...newCar };
-    setCars(prev => [car, ...prev]);
-    setNewCar({
-      model: { en: '', ru: '', kg: '' },
-      price: '',
-      transmission: 'Auto',
-      seats: 5,
-      img: '',
-      type: 'sedan',
-      fuel: 'gas'
-    });
-    setShowForm(false);
+  const isAdmin = user?.role === 'admin';
+
+  const loadCars = useCallback(async () => {
+    setLoading(true);
     setError('');
+    try {
+      setCars(isAdmin ? await getAdminCars() : await getMyCars());
+    } catch (loadError) {
+      setError(loadError.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [getAdminCars, getMyCars, isAdmin]);
+
+  useEffect(() => {
+    loadCars();
+  }, [loadCars]);
+
+  const resetForm = () => {
+    setNewCar(emptyCar);
+    setEditingId(null);
+    setShowForm(false);
   };
 
-  const deleteCar = (id) => {
-    if (confirm('Удалить машину?')) {
-      setCars(prev => prev.filter(car => car.id !== id));
+  const updateField = (field, value) => setNewCar((prev) => ({ ...prev, [field]: value }));
+
+  const validate = () => {
+    if (!newCar.brand || !newCar.modelName || !newCar.vin) return 'Brand, model, and VIN are required';
+    if (String(newCar.vin).replaceAll(' ', '').length < 11) return 'VIN must be at least 11 characters';
+    if (Number(newCar.price) <= 0) return 'Price must be greater than zero';
+    return '';
+  };
+
+  const submitCar = async () => {
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setError('');
+    setNotice('');
+    try {
+      if (editingId) {
+        await saveCar(newCar, editingId);
+        setNotice('Car updated. Partner edits return to pending approval.');
+      } else if (isAdmin) {
+        await saveCar(newCar);
+        setNotice('Admin car created and approved immediately.');
+      } else {
+        await createOrder(newCar);
+        setNotice('Car submitted to admin for approval.');
+      }
+      resetForm();
+      await loadCars();
+    } catch (submitError) {
+      setError(submitError.message);
     }
   };
 
   const editCar = (car) => {
     setEditingId(car.id);
-    setNewCar(car);
+    setNewCar({
+      brand: car.brand,
+      modelName: car.modelName,
+      year: car.year,
+      vin: car.vin,
+      price: car.price,
+      description: car.description,
+    });
     setShowForm(true);
   };
 
-  const updateCar = () => {
-    if (newCar.price < 10 || newCar.price > 500) {
-      setError('Цена должна быть от 10 до 500');
-      return;
-    }
-    setCars(prev => prev.map(car => car.id === editingId ? newCar : car));
-    setNewCar({
-      model: { en: '', ru: '', kg: '' },
-      price: '',
-      transmission: 'Auto',
-      seats: 5,
-      img: '',
-      type: 'sedan',
-      fuel: 'gas'
-    });
-    setEditingId(null);
-    setShowForm(false);
+  const removeCar = async (id) => {
+    if (!confirm('Delete this car from the backend?')) return;
     setError('');
+    try {
+      await deleteCar(id);
+      setCars((prev) => prev.filter((car) => car.id !== id));
+      setNotice('Car deleted.');
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  };
+
+  const decideCar = async (id, decision) => {
+    setError('');
+    try {
+      const updated = carFromApi(await carsApi.decide(id, { decision, adminNote: decision === 'APPROVE' ? 'Approved from React admin dashboard' : 'Rejected from React admin dashboard' }));
+      setCars((prev) => prev.map((car) => car.id === id ? updated : car));
+      setNotice(`Car ${decision.toLowerCase()}d.`);
+    } catch (decisionError) {
+      setError(decisionError.message);
+    }
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Управление автомобилями</h1>
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            setEditingId(null);
-            updateFilters({});
-          }}
-          className="bg-cwd-blue text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90"
-        >
-          {showForm ? 'Отмена' : 'Добавить машину'}
-        </button>
+    <div className="mx-auto max-w-7xl p-4 sm:p-8">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">{isAdmin ? 'Admin fleet' : 'Partner garage'}</p>
+          <h1 className="mt-2 text-3xl font-black text-slate-950">Manage cars</h1>
+          <p className="mt-2 text-slate-600">{isAdmin ? 'Approve, reject, edit, or create cars.' : 'Submit your cars for admin approval and manage your listings.'}</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={loadCars} className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 font-bold text-slate-800 shadow">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </button>
+          <button
+            onClick={() => {
+              setShowForm((prev) => !prev);
+              setEditingId(null);
+              setNewCar(emptyCar);
+            }}
+            className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-black text-white shadow-xl"
+          >
+            <Plus className="h-4 w-4" />
+            {showForm ? 'Close form' : 'Add car'}
+          </button>
+        </div>
       </div>
 
+      {error && <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
+      {notice && <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{notice}</div>}
+
       {showForm && (
-        <div className="bg-white p-8 rounded-2xl shadow-lg mb-8">
-          <h2 className="text-2xl font-bold mb-6">{editingId ? 'Редактировать' : 'Новая машина'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              placeholder="English model"
-              value={newCar.model.en}
-              onChange={(e) => setNewCar({...newCar, model: {...newCar.model, en: e.target.value}})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
-            <input
-              placeholder="Русское название"
-              value={newCar.model.ru}
-              onChange={(e) => setNewCar({...newCar, model: {...newCar.model, ru: e.target.value}})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
-            <input
-              placeholder="Кыргызча аталышы"
-              value={newCar.model.kg}
-              onChange={(e) => setNewCar({...newCar, model: {...newCar.model, kg: e.target.value}})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
-            <input
-              type="number"
-              placeholder="Цена/день"
-              value={newCar.price}
-              onChange={(e) => setNewCar({...newCar, price: e.target.value})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
-            <input
-              type="url"
-              placeholder="Image URL or upload file"
-              value={newCar.img}
-              onChange={(e) => setNewCar({...newCar, img: e.target.value})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  const url = URL.createObjectURL(file);
-                  setNewCar({...newCar, img: url});
-                }
-              }}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cwd-blue file:text-white hover:file:bg-opacity-90"
-            />
-            <select
-              value={newCar.transmission}
-              onChange={(e) => setNewCar({...newCar, transmission: e.target.value})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            >
-              <option>Auto</option>
-              <option>Manual</option>
-            </select>
-            <input
-              type="number"
-              placeholder="Seats"
-              value={newCar.seats}
-              onChange={(e) => setNewCar({...newCar, seats: parseInt(e.target.value)})}
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cwd-blue"
-            />
+        <div className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur md:p-8">
+          <h2 className="mb-6 text-2xl font-black text-slate-950">{editingId ? 'Edit car' : isAdmin ? 'Create approved car' : 'Submit partner car'}</h2>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <input placeholder="Brand" value={newCar.brand} onChange={(e) => updateField('brand', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input placeholder="Model" value={newCar.modelName} onChange={(e) => updateField('modelName', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input type="number" placeholder="Year" value={newCar.year} onChange={(e) => updateField('year', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input placeholder="VIN, 11-17 chars" value={newCar.vin} onChange={(e) => updateField('vin', e.target.value)} className="rounded-2xl border border-slate-200 p-4 uppercase outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input type="number" placeholder="Price per day" value={newCar.price} onChange={(e) => updateField('price', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <textarea placeholder="Description" value={newCar.description} onChange={(e) => updateField('description', e.target.value)} className="min-h-28 rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 md:col-span-2" />
           </div>
-          {error && <div className="text-red-600 mt-4">{error}</div>}
-          <div className="mt-6 space-x-3">
-            <button
-              type="button"
-              onClick={editingId ? updateCar : addCar}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700"
-            >
-              {editingId ? 'Обновить' : 'Добавить'}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button type="button" onClick={submitCar} className="rounded-2xl bg-emerald-600 px-6 py-3 font-black text-white hover:bg-emerald-700">
+              {editingId ? 'Update car' : isAdmin ? 'Create car' : 'Send for approval'}
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowForm(false);
-                setEditingId(null);
-              }}
-              className="bg-gray-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-600"
-            >
-              Отмена
+            <button type="button" onClick={resetForm} className="rounded-2xl bg-slate-200 px-6 py-3 font-black text-slate-800 hover:bg-slate-300">
+              Cancel
             </button>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cars.map(car => (
-          <div key={car.id} className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all">
-            <img src={car.img} alt={car.model.en} className="w-full h-48 object-cover rounded-xl mb-4" />
-            <h3 className="text-xl font-bold mb-2">{car.model.en}</h3>
-            <p className="text-cwd-blue font-bold text-lg mb-4">${car.price}/day</p>
-            <div className="flex gap-2 mb-4">
-              <span className="px-2 py-1 bg-gray-100 text-xs rounded-full">{car.transmission}</span>
-              <span className="px-2 py-1 bg-gray-100 text-xs rounded-full">{car.seats} seats</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => editCar(car)}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-700 transition"
-              >
-                Редактировать
-              </button>
-              <button
-                onClick={() => deleteCar(car.id)}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-red-700 transition"
-              >
-                Удалить
-              </button>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {loading ? (
+          <p className="text-slate-500">Loading cars...</p>
+        ) : cars.length === 0 ? (
+          <div className="rounded-[2rem] bg-white/85 p-8 text-slate-600 shadow-xl">No cars yet. Add your first car to start.</div>
+        ) : cars.map((car) => (
+          <div key={car.id} className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur">
+            <img src={car.img} alt={car.model.en} className="h-52 w-full object-cover" />
+            <div className="p-6">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-black text-slate-950">{car.model.en}</h3>
+                  <p className="text-sm text-slate-500">VIN {car.vin}</p>
+                </div>
+                <span className={`rounded-full px-3 py-1 text-xs font-black uppercase ${statusBadge[car.status] || 'bg-slate-100 text-slate-700'}`}>
+                  {car.status}
+                </span>
+              </div>
+              <p className="mb-5 line-clamp-2 text-sm text-slate-600">{car.description}</p>
+              <div className="mb-5 flex items-center justify-between">
+                <span className="font-bold text-slate-500">{car.year}</span>
+                <strong className="text-2xl text-cwd-blue">${car.price}/day</strong>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => editCar(car)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-700 px-4 py-3 font-bold text-white">
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </button>
+                <button onClick={() => removeCar(car.id)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-bold text-white">
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+                {isAdmin && car.status !== 'APPROVED' && (
+                  <button onClick={() => decideCar(car.id, 'APPROVE')} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 font-bold text-white">
+                    <Check className="h-4 w-4" />
+                    Approve
+                  </button>
+                )}
+                {isAdmin && car.status !== 'REJECTED' && (
+                  <button onClick={() => decideCar(car.id, 'REJECT')} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-800 px-4 py-3 font-bold text-white">
+                    <X className="h-4 w-4" />
+                    Reject
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -207,4 +233,3 @@ const ManageCars = () => {
 };
 
 export default ManageCars;
-

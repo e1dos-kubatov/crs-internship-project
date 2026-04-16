@@ -4,7 +4,7 @@ import Filters from './Filters';
 import CarCard from './CarCard';
 
 const CarsPage = () => {
-  const { filteredCars, filters, loading } = useRental();
+  const { filteredCars, filters, loading, error, updateFilters } = useRental();
 
   if (loading) {
     return (
@@ -29,7 +29,7 @@ const CarsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-transparent py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-80 lg:sticky lg:top-24 lg:h-fit self-start">
@@ -38,23 +38,29 @@ const CarsPage = () => {
           
           <main className="flex-1">
             <div className="mb-8">
-              <div className="filters-header mb-6 p-4 bg-white rounded-2xl shadow-lg">
+              <div className="filters-header mb-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur">
                 {filters.pickupDate && filters.dropoffDate ? (
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-black text-slate-950 mb-2">
                       Active cars available {filters.pickupDate} - {filters.dropoffDate}
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-slate-600">
                       {filteredCars.length} cars found for your search
                     </p>
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Cars for rent</h1>
-                    <p className="text-xl text-gray-600">
-                      {filteredCars.length} cars available
+                    <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">Live fleet</p>
+                    <h1 className="mt-2 text-4xl font-black text-slate-950 mb-2">Cars for rent</h1>
+                    <p className="text-xl text-slate-600">
+                      {filteredCars.length} approved backend cars available
                     </p>
                   </>
+                )}
+                {error && (
+                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    {error}
+                  </div>
                 )}
               </div>
             </div>
@@ -70,7 +76,10 @@ const CarsPage = () => {
                 <p className="text-gray-600 mb-8 max-w-md mx-auto">
                   Try adjusting your search or filters. There are plenty of cars available for rent.
                 </p>
-                <button className="bg-cwd-blue text-white px-8 py-3 rounded-2xl font-bold hover:bg-opacity-90 transition-all">
+                <button
+                  onClick={() => updateFilters({ price: [0, 500], type: [], transmission: [], fuel: [], sort: 'price-asc', query: '' })}
+                  className="bg-cwd-blue text-white px-8 py-3 rounded-2xl font-bold hover:bg-opacity-90 transition-all"
+                >
                   Clear Filters
                 </button>
               </div>

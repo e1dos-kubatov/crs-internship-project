@@ -40,7 +40,7 @@ public class AuthService {
                 .name(request.getName())
                 .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ROLE_CUSTOMER)
+                .role(Role.ROLE_PARTNER)
                 .provider(Provider.LOCAL)
                 .build();
 
@@ -70,12 +70,6 @@ public class AuthService {
                         request.getPassword()
                 )
         );
-
-        if (Boolean.TRUE.equals(request.getPartnerAccess()) &&
-                user.getRole() == Role.ROLE_CUSTOMER) {
-            user.setRole(Role.ROLE_PARTNER);
-            userRepository.save(user);
-        }
 
         return JwtResponse.builder()
                 .token(jwtService.generateToken(new CustomUserDetails(user)))

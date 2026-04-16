@@ -146,11 +146,8 @@ const translations = {
 };
 
 export const LangProvider = ({ children }) => {
-  const [lang, setLang] = useState('en');
-  useEffect(() => {
-    const saved = localStorage.getItem('lang') || 'en';
-    setLang(saved);
-  }, []);
+  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
+
   useEffect(() => {
     localStorage.setItem('lang', lang);
   }, [lang]);

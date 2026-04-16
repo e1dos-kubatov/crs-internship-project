@@ -56,7 +56,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                                 .name(name != null ? name : "OAuth User")
                                 .provider(provider)
                                 .providerId(providerId)
-                                .role(Role.ROLE_CUSTOMER)
+                                .role(Role.ROLE_PARTNER)
                                 .build()
                 ));
 

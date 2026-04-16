@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Access denied. Your current token is not PARTNER or ADMIN. Log in again with Partner access checked, then try again."));
+                .body(ApiResponse.error("Access denied. Your current token does not have the required role. Log in again, then try again."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

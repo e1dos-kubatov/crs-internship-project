@@ -1,7 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import RentalProvider from './context/RentalContext';
 import { LangProvider } from './context/LangContext';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -21,7 +20,7 @@ import CancelBooking from './components/CancelBooking';
 const ProtectedRoute = ({ children, adminOnly }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="min-h-screen grid place-items-center bg-stone-50 text-slate-700">Loading workspace...</div>;
 
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
@@ -32,7 +31,7 @@ const ProtectedRoute = ({ children, adminOnly }) => {
 const ClientProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="min-h-screen grid place-items-center bg-stone-50 text-slate-700">Loading workspace...</div>;
 
   if (!user) return <Navigate to="/login" />;
   if (user.role === 'admin') return <Navigate to="/admin" />;
@@ -45,32 +44,30 @@ const StaticPageWrapper = ({ page }) => <StaticPage page={page} />;
 function AppContent() {
   return (
     <LangProvider>
-      <RentalProvider>
-        <Router>
-          <div className="min-h-screen bg-white">
-            <Header />
-            <main>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/admin/*" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-                <Route path="/account/*" element={<ClientProtectedRoute><ClientDashboard /></ClientProtectedRoute>} />
-                <Route path="/" element={<ProtectedRoute><Hero /></ProtectedRoute>} />
-                <Route path="/cars" element={<ProtectedRoute><CarsPage /></ProtectedRoute>} />
-                <Route path="/cars/:id" element={<ProtectedRoute><CarDetails /></ProtectedRoute>} />
-                <Route path="/offices" element={<ProtectedRoute><Offices /></ProtectedRoute>} />
-                <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
-                <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
-                <Route path="/cancel-booking" element={<ProtectedRoute><CancelBooking /></ProtectedRoute>} />
-                <Route path="/account/modify-booking" element={<ProtectedRoute><StaticPage page="modifyBooking" /></ProtectedRoute>} />
-                <Route path="/:page" element={<ProtectedRoute><StaticPageWrapper /></ProtectedRoute>} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </RentalProvider>
+      <Router>
+        <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#fff7ed_0,#f8fafc_42%,#eef2ff_100%)]">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/admin/*" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/account/*" element={<ClientProtectedRoute><ClientDashboard /></ClientProtectedRoute>} />
+              <Route path="/" element={<Hero />} />
+              <Route path="/cars" element={<CarsPage />} />
+              <Route path="/cars/:id" element={<CarDetails />} />
+              <Route path="/offices" element={<Offices />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/cancel-booking" element={<ProtectedRoute><CancelBooking /></ProtectedRoute>} />
+              <Route path="/account/modify-booking" element={<ProtectedRoute><StaticPage page="modifyBooking" /></ProtectedRoute>} />
+              <Route path="/:page" element={<StaticPageWrapper />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
     </LangProvider>
   );
 }

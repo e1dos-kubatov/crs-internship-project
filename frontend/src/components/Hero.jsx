@@ -3,10 +3,8 @@ import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from './BookingContext';
-import { cars } from '../data/cars';
 import { offices as locations } from '../data/offices';
 import BookingSummary from './BookingSummary';
-import { TIME_SLOTS } from '../Constants';
 
 const ChevronIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,7 +14,7 @@ const ChevronIcon = () => (
 
 const Hero = () => {
   const { t } = useLang();
-  const { booking, updateBooking, searchCars, TIME_SLOTS: slots } = useBooking(); 
+  const { booking, updateBooking, TIME_SLOTS: slots } = useBooking();
   const { updateFilters } = useRental();
   const navigate = useNavigate();
   
@@ -36,25 +34,29 @@ const Hero = () => {
 
   return (
     <>
-      <section className="relative min-h-[700px] flex flex-col items-center pt-24 pb-12 px-4">
+      <section className="relative min-h-[720px] flex flex-col items-center pt-24 pb-12 px-4">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80" 
+            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&q=80"
             alt="Cars" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/55 to-orange-950/60"></div>
         </div>
 
-        <h1 className="relative z-10 text-white text-3xl md:text-5xl font-extrabold mb-12 text-center tracking-tight max-w-4xl leading-tight">
+        <div className="relative z-10 mb-8 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-bold uppercase tracking-[0.3em] text-orange-100 backdrop-blur">
+          Spring Boot + React integration
+        </div>
+
+        <h1 className="relative z-10 text-white text-4xl md:text-6xl font-black mb-12 text-center tracking-tight max-w-5xl leading-tight">
           {t('title')}
         </h1>
 
-        <form onSubmit={handleSearch} className="bg-cwd-gray-dark/95 backdrop-blur-sm text-white p-8 w-full max-w-6xl shadow-2xl rounded-2xl">
+        <form onSubmit={handleSearch} className="relative z-10 w-full max-w-6xl rounded-[2rem] border border-white/15 bg-slate-950/80 p-8 text-white shadow-2xl backdrop-blur-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-4">
               <div className="flex items-center gap-4">
-                <span className="bg-cwd-gray-light text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">1</span>
+                <span className="bg-orange-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">1</span>
                 <div className="flex-1">
                   <label className="block text-xs uppercase text-gray-300 font-bold mb-1">{t('pickup')}</label>
                   <select 
@@ -67,7 +69,7 @@ const Hero = () => {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="bg-cwd-gray-light text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">2</span>
+                <span className="bg-sky-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">2</span>
                 <div className="flex-1">
                   <label className="block text-xs uppercase text-gray-300 font-bold mb-1">{t('dropoff')}</label>
                   <select 
@@ -131,7 +133,7 @@ const Hero = () => {
             <button type="button" className="text-xs font-black flex items-center gap-2 hover:text-gray-300 transition-colors uppercase tracking-widest">
               Worldwide Discount <ChevronIcon />
             </button>
-            <button type="submit" className="bg-cwd-blue px-12 py-4 text-sm font-black hover:bg-opacity-90 transition-all uppercase tracking-widest rounded">
+            <button type="submit" className="rounded-2xl bg-gradient-to-r from-orange-500 to-sky-700 px-12 py-4 text-sm font-black uppercase tracking-widest shadow-xl transition-all hover:-translate-y-0.5">
               {t('searchCars')}
             </button>
           </div>

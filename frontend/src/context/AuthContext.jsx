@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { authApi, setToken, getToken } from '../api/client';
+import { normalizeUser } from '../api/adapters';
 
 const AuthContext = createContext();
+const USER_KEY = 'carRentalUser';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -12,71 +15,88 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+  const persistUser = useCallback((nextUser) => {
+    const normalized = normalizeUser(nextUser);
+    localStorage.setItem(USER_KEY, JSON.stringify(normalized));
+    setUser(normalized);
+    return normalized;
   }, []);
 
-const login = async (email, password) => {
-    // Strict validation
-    if (email === 'admin@admin.com') {
-      if (password === 'admin') {
-        const adminUser = { id: 1, email, role: 'admin', name: 'Admin' };
-        localStorage.setItem('user', JSON.stringify(adminUser));
-        setUser(adminUser);
-        return { success: true };
-      } else {
-        return { success: false, error: 'Неверный пароль для админа' };
+  const loadCurrentUser = useCallback(async () => {
+    const currentUser = await authApi.me();
+    return persistUser(currentUser);
+  }, [persistUser]);
+
+  useEffect(() => {
+    const boot = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const oauthToken = params.get('token');
+      const oauthState = params.get('oauth');
+
+      try {
+        if (oauthToken) {
+          setToken(oauthToken);
+          await loadCurrentUser();
+          params.delete('token');
+          params.delete('oauth');
+          const nextSearch = params.toString();
+          window.history.replaceState({}, document.title, `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`);
+        } else if (oauthState === 'error') {
+          setToken(null);
+          localStorage.removeItem(USER_KEY);
+        } else if (getToken()) {
+          await loadCurrentUser();
+        } else {
+          const savedUser = localStorage.getItem(USER_KEY);
+          if (savedUser) setUser(JSON.parse(savedUser));
+        }
+      } catch {
+        setToken(null);
+        localStorage.removeItem(USER_KEY);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } else if (email && password && password.length >= 3) {
-      const clientUser = { id: Math.random(), email, role: 'client', name: email.split('@')[0], registered: new Date().toISOString() };
-      localStorage.setItem('user', JSON.stringify(clientUser));
-      // Add to global users list
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (!users.find(u => u.email === email)) {
-        users.push(clientUser);
-        localStorage.setItem('users', JSON.stringify(users));
-      }
-      setUser(clientUser);
-      return { success: true };
-    } else {
-      return { success: false, error: 'Введите корректный email и пароль (минимум 3 символа)' };
+    };
+
+    boot();
+  }, [loadCurrentUser]);
+
+  const login = async (email, password) => {
+    try {
+      const response = await authApi.login({ email, password });
+      setToken(response.token);
+      const currentUser = await loadCurrentUser();
+      return { success: true, user: currentUser };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   };
 
-  const register = async (name, email, phone, password) => {
-    // Fake register
-    const user = { 
-      id: Date.now(), 
-      name, 
-      email, 
-      phone, 
-      role: 'client',
-      registered: new Date().toISOString()
-    };
-    localStorage.setItem('user', JSON.stringify(user));
-    // Add to global users list
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    if (!users.find(u => u.email === email)) {
-      users.push(user);
-      localStorage.setItem('users', JSON.stringify(users));
+  const register = async (name, email, password) => {
+    try {
+      const response = await authApi.register({ name, email, password });
+      setToken(response.token);
+      const currentUser = await loadCurrentUser();
+      return { success: true, user: currentUser };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
-    setUser(user);
-    return { success: true };
+  };
+
+  const loginWithOAuth = (provider) => {
+    window.location.href = authApi.oauthUrl(provider);
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
+    setToken(null);
+    localStorage.removeItem(USER_KEY);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, loginWithOAuth, logout, loading, refreshUser: loadCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
-

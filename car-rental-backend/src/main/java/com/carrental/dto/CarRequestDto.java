@@ -34,4 +34,6 @@ public class CarRequestDto {
     @NotNull(message = "Price per day is required")
     @DecimalMin(value = "0.01", message = "Price per day must be greater than zero")
     private BigDecimal pricePerDay;
+
+    private String description;
 }

@@ -1,10 +1,23 @@
-# Скомпилированные файлы
+# ==========================================
+# BACKEND (Spring Boot / Java)
+# ==========================================
 target/
-car-rental-backend/target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Файлы настроек самой IntelliJ IDEA (их тоже не нужно пушить)
+# ==========================================
+# GLOBAL EDITOR & OS FILES
+# ==========================================
 .idea/
+*.iws
 *.iml
+*.ipr
+.vscode/
+!.vscode/extensions.json
+.DS_Store
+*.suo
+*.sln
 
 .env
 car-rental-backend/.env

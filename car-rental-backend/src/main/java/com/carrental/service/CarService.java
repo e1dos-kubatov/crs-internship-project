@@ -2,7 +2,12 @@ package com.carrental.service;
 
 import com.carrental.dto.CarRequestDto;
 import com.carrental.dto.CarResponseDto;
+import com.carrental.dto.OrderDecisionRequestDto;
+import com.carrental.dto.PartnerOrderRequestDto;
+import com.carrental.dto.PartnerOrderResponseDto;
 import com.carrental.entity.Car;
+import com.carrental.entity.OrderStatus;
+import com.carrental.entity.Role;
 import com.carrental.entity.User;
 import com.carrental.exception.BadRequestException;
 import com.carrental.exception.ResourceNotFoundException;
@@ -25,25 +30,20 @@ public class CarService {
     @Transactional
     public CarResponseDto createCar(CarRequestDto request, String userEmail) {
         User owner = findUserByEmail(userEmail);
+        boolean isAdmin = isAdmin(owner);
 
-        String normalizedVin = normalizeVin(request.getVin());
-        validateVinAvailability(normalizedVin, null);
-
-        Car car = Car.builder()
-                .brand(request.getBrand())
-                .model(request.getModel())
-                .year(request.getYear())
-                .vin(normalizedVin)
-                .pricePerDay(request.getPricePerDay())
-                .available(true)
-                .owner(owner)
-                .build();
+        Car car = buildNewCar(
+                request,
+                owner,
+                isAdmin ? OrderStatus.APPROVED : OrderStatus.PENDING,
+                isAdmin
+        );
 
         return mapToResponse(carRepository.save(car));
     }
 
     public List<CarResponseDto> getAvailableCars() {
-        return carRepository.findByAvailableTrue().stream()
+        return carRepository.findByAvailableTrueAndStatus(OrderStatus.APPROVED).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -70,63 +70,95 @@ public class CarService {
         Car car = findCarById(id);
         User currentUser = findUserByEmail(userEmail);
 
-        boolean isAdmin = currentUser.getRole().name().equals("ADMIN") ||
-                currentUser.getRole().name().equals("ROLE_ADMIN");
-
-        // SECURITY & RE-APPROVAL WORKFLOW
-        if (!isAdmin) {
-            if (car.getOwner() == null || !car.getOwner().getId().equals(currentUser.getId())) {
-                throw new BadRequestException("Access Denied: You can only modify your own cars!");
-            }
-            // 🔥 If a Partner updates the car, hide it until an Admin approves it again!
+        if (!isAdmin(currentUser)) {
+            verifyOwner(car, currentUser);
+            car.setStatus(OrderStatus.PENDING);
             car.setAvailable(false);
+            car.setAdminNote(null);
         }
 
-        String normalizedVin = normalizeVin(request.getVin());
-        validateVinAvailability(normalizedVin, id);
-
-        car.setBrand(request.getBrand());
-        car.setModel(request.getModel());
-        car.setYear(request.getYear());
-        car.setVin(normalizedVin);
-        car.setPricePerDay(request.getPricePerDay());
-
+        applyCarData(car, request, id);
         return mapToResponse(carRepository.save(car));
     }
 
-    // NEW: Method for Admins to re-approve a car after a Partner updates it
     @Transactional
     public CarResponseDto approveCarVisibility(Long id) {
         Car car = findCarById(id);
+        car.setStatus(OrderStatus.APPROVED);
         car.setAvailable(true);
+        car.setAdminNote(null);
         return mapToResponse(carRepository.save(car));
     }
 
     @Transactional
-    // FIXED: Added userEmail to verify ownership before deleting
+    public CarResponseDto decideCar(Long id, OrderDecisionRequestDto request) {
+        Car car = findCarById(id);
+        String decision = request.getDecision().trim().toUpperCase();
+
+        switch (decision) {
+            case "APPROVE" -> {
+                car.setStatus(OrderStatus.APPROVED);
+                car.setAvailable(true);
+            }
+            case "REJECT" -> {
+                car.setStatus(OrderStatus.REJECTED);
+                car.setAvailable(false);
+            }
+            default -> throw new BadRequestException("Decision must be APPROVE or REJECT");
+        }
+
+        car.setAdminNote(request.getAdminNote());
+        return mapToResponse(carRepository.save(car));
+    }
+
+    @Transactional
     public void deleteCar(Long id, String userEmail) {
         Car car = findCarById(id);
-
-        // SECURITY CHECK: Make sure this user is allowed to delete this car
         verifyOwnershipOrAdmin(car, userEmail);
-
         carRepository.delete(car);
     }
 
     @Transactional
-    public Car createApprovedCarFromOrder(CarRequestDto request, User owner) {
-        String normalizedVin = normalizeVin(request.getVin());
-        validateVinAvailability(normalizedVin, null);
-        Car car = Car.builder()
-                .brand(request.getBrand())
-                .model(request.getModel())
-                .year(request.getYear())
-                .vin(normalizedVin)
-                .pricePerDay(request.getPricePerDay())
-                .owner(owner)
-                .available(true)
-                .build();
-        return carRepository.save(car);
+    public PartnerOrderResponseDto createOrder(PartnerOrderRequestDto request, String email) {
+        User owner = findPartnerOrAdmin(email);
+        Car car = buildNewCar(toCarRequest(request), owner, OrderStatus.PENDING, false);
+        return mapToOrderResponse(carRepository.save(car));
+    }
+
+    @Transactional
+    public PartnerOrderResponseDto updateOrder(Long carId, PartnerOrderRequestDto request, String email) {
+        Car car = findCarById(carId);
+        verifyOwnershipOrAdmin(car, email);
+
+        applyCarData(car, toCarRequest(request), carId);
+        car.setStatus(OrderStatus.PENDING);
+        car.setAvailable(false);
+        car.setAdminNote(null);
+
+        return mapToOrderResponse(carRepository.save(car));
+    }
+
+    public List<PartnerOrderResponseDto> getMyOrders(String email) {
+        User owner = findUserByEmail(email);
+        return carRepository.findByOwnerId(owner.getId()).stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    public List<PartnerOrderResponseDto> getAllOrders() {
+        return carRepository.findAll().stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    @Transactional
+    public PartnerOrderResponseDto decideOrder(Long carId, OrderDecisionRequestDto request) {
+        return mapToOrderResponse(findAndApplyDecision(carId, request));
+    }
+
+    @Transactional
+    public void deleteOrder(Long carId, String userEmail) {
+        deleteCar(carId, userEmail);
     }
 
     @Transactional
@@ -141,25 +173,34 @@ public class CarService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    private User findPartnerOrAdmin(String email) {
+        User user = findUserByEmail(email);
+        if (user.getRole() != Role.ROLE_PARTNER && user.getRole() != Role.ROLE_ADMIN) {
+            throw new BadRequestException("Only partners can create car orders");
+        }
+        return user;
+    }
+
     private Car findCarById(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found"));
     }
 
-    // NEW HELPER METHOD: Checks if the user is an Admin OR the Owner of the car
     private void verifyOwnershipOrAdmin(Car car, String userEmail) {
         User currentUser = findUserByEmail(userEmail);
-
-        // Check if the user is an admin
-        boolean isAdmin = currentUser.getRole().name().equals("ADMIN") ||
-                currentUser.getRole().name().equals("ROLE_ADMIN");
-
-        // If they are NOT an admin, check if they own the car
-        if (!isAdmin) {
-            if (car.getOwner() == null || !car.getOwner().getId().equals(currentUser.getId())) {
-                throw new BadRequestException("Access Denied: You can only modify your own cars!");
-            }
+        if (!isAdmin(currentUser)) {
+            verifyOwner(car, currentUser);
         }
+    }
+
+    private void verifyOwner(Car car, User currentUser) {
+        if (car.getOwner() == null || !car.getOwner().getId().equals(currentUser.getId())) {
+            throw new BadRequestException("Access Denied: You can only modify your own cars!");
+        }
+    }
+
+    private boolean isAdmin(User user) {
+        return user.getRole() == Role.ROLE_ADMIN || user.getRole() == Role.ROLE_SUPERADMIN;
     }
 
     private void validateVinAvailability(String normalizedVin, Long currentCarId) {
@@ -178,6 +219,66 @@ public class CarService {
         return normalizedVin;
     }
 
+    private Car buildNewCar(CarRequestDto request, User owner, OrderStatus status, boolean available) {
+        String normalizedVin = normalizeVin(request.getVin());
+        validateVinAvailability(normalizedVin, null);
+
+        return Car.builder()
+                .brand(request.getBrand())
+                .model(request.getModel())
+                .year(request.getYear())
+                .vin(normalizedVin)
+                .pricePerDay(request.getPricePerDay())
+                .description(request.getDescription())
+                .status(status)
+                .available(available)
+                .owner(owner)
+                .build();
+    }
+
+    private void applyCarData(Car car, CarRequestDto request, Long currentCarId) {
+        String normalizedVin = normalizeVin(request.getVin());
+        validateVinAvailability(normalizedVin, currentCarId);
+
+        car.setBrand(request.getBrand());
+        car.setModel(request.getModel());
+        car.setYear(request.getYear());
+        car.setVin(normalizedVin);
+        car.setPricePerDay(request.getPricePerDay());
+        car.setDescription(request.getDescription());
+    }
+
+    private CarRequestDto toCarRequest(PartnerOrderRequestDto request) {
+        return CarRequestDto.builder()
+                .brand(request.getBrand())
+                .model(request.getModel())
+                .year(request.getYear())
+                .vin(request.getVin())
+                .pricePerDay(request.getPricePerDay())
+                .description(request.getDescription())
+                .build();
+    }
+
+    private Car findAndApplyDecision(Long carId, OrderDecisionRequestDto request) {
+        Car car = findCarById(carId);
+        String decision = request.getDecision().trim().toUpperCase();
+
+        switch (decision) {
+            case "APPROVE" -> {
+                car.setStatus(OrderStatus.APPROVED);
+                car.setAvailable(true);
+            }
+            case "REJECT" -> {
+                car.setStatus(OrderStatus.REJECTED);
+                car.setAvailable(false);
+            }
+            default -> throw new BadRequestException("Decision must be APPROVE or REJECT");
+        }
+
+        car.setAdminNote(request.getAdminNote());
+        return carRepository.save(car);
+    }
+
     private CarResponseDto mapToResponse(Car car) {
         return CarResponseDto.builder()
                 .id(car.getId())
@@ -186,9 +287,32 @@ public class CarService {
                 .year(car.getYear())
                 .vin(car.getVin())
                 .pricePerDay(car.getPricePerDay())
+                .description(car.getDescription())
+                .status(car.getStatus())
+                .adminNote(car.getAdminNote())
                 .available(car.isAvailable())
                 .ownerId(car.getOwner() != null ? car.getOwner().getId() : null)
                 .ownerName(car.getOwner() != null ? car.getOwner().getName() : null)
+                .createdAt(car.getCreatedAt())
+                .build();
+    }
+
+    private PartnerOrderResponseDto mapToOrderResponse(Car car) {
+        return PartnerOrderResponseDto.builder()
+                .id(car.getId())
+                .partnerId(car.getOwner() != null ? car.getOwner().getId() : null)
+                .partnerName(car.getOwner() != null ? car.getOwner().getName() : null)
+                .partnerEmail(car.getOwner() != null ? car.getOwner().getEmail() : null)
+                .brand(car.getBrand())
+                .model(car.getModel())
+                .year(car.getYear())
+                .vin(car.getVin())
+                .pricePerDay(car.getPricePerDay())
+                .description(car.getDescription())
+                .status(car.getStatus())
+                .adminNote(car.getAdminNote())
+                .approvedCarId(car.getStatus() == OrderStatus.APPROVED ? car.getId() : null)
+                .createdAt(car.getCreatedAt())
                 .build();
     }
 }

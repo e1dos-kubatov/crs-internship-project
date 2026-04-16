@@ -3,6 +3,7 @@ package com.carrental.controller;
 import com.carrental.dto.ApiResponse;
 import com.carrental.dto.CarRequestDto;
 import com.carrental.dto.CarResponseDto;
+import com.carrental.dto.OrderDecisionRequestDto;
 import com.carrental.service.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,10 @@ public class CarController {
     private final CarService carService;
 
     @PostMapping
-    // FIXED: Allowed both ADMIN and PARTNER to create cars directly
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
     public ResponseEntity<ApiResponse<CarResponseDto>> createCar(
             @Valid @RequestBody CarRequestDto request,
-            Principal principal) { // Added Principal to get the user's email
-
+            Principal principal) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Car created successfully", carService.createCar(request, principal.getName())));
     }
@@ -55,7 +54,6 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    // FIXED: Now allows Partners through the door so the Service can check if they own it!
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
     public ResponseEntity<ApiResponse<CarResponseDto>> updateCar(
             @PathVariable Long id,
@@ -65,7 +63,6 @@ public class CarController {
     }
 
     @DeleteMapping("/{id}")
-    // FIXED: Allowed Partners to delete their own cars
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PARTNER')")
     public ResponseEntity<ApiResponse<Void>> deleteCar(
             @PathVariable Long id,
@@ -73,10 +70,17 @@ public class CarController {
         carService.deleteCar(id, principal.getName());
         return ResponseEntity.ok(ApiResponse.success("Car deleted successfully", null));
     }
-    // NEW: Admin endpoint to approve a car after it was updated by a Partner
+
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<CarResponseDto>> approveCar(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success("Car approved and is now available for rent", carService.approveCarVisibility(id)));
+    }
+
+    @PatchMapping("/{id}/decision")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<CarResponseDto>> decideCar(@PathVariable Long id,
+                                                                 @Valid @RequestBody OrderDecisionRequestDto request) {
+        return ResponseEntity.ok(ApiResponse.success("Car decision saved successfully", carService.decideCar(id, request)));
     }
 }

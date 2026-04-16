@@ -2,6 +2,8 @@ package com.carrental.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cars")
@@ -45,13 +48,28 @@ public class Car {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerDay;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private OrderStatus status = OrderStatus.PENDING;
+
+    @Column(columnDefinition = "TEXT")
+    private String adminNote;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
 
-@Column(nullable = false)
+    @Column(nullable = false)
     @Builder.Default
-    private boolean available = true;
+    private boolean available = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
     @Builder.Default

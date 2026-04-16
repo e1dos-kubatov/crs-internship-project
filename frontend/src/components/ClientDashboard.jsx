@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarClock, CarFront, DollarSign, LogOut } from 'lucide-react';
-import { Link, Route, Routes } from 'react-router-dom';
+import { ArrowRight, BadgeCheck, CalendarClock, CarFront, DollarSign, LifeBuoy, LogOut, MapPin, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
@@ -30,18 +30,44 @@ const ClientDashboard = () => {
   }, [getMyRentals]);
 
   const total = bookings.reduce((sum, booking) => sum + Number(booking.total || 0), 0);
+  const activeRentals = bookings.filter((booking) => String(booking.status || '').toLowerCase() === 'active').length;
+  const latestRental = bookings[0];
+
+  const statCards = [
+    { label: t('rentals'), value: bookings.length, icon: CalendarClock, className: 'from-orange-500 to-rose-700' },
+    { label: t('activeRentals'), value: activeRentals, icon: CarFront, className: 'from-cwd-blue to-sky-900' },
+    { label: t('totalSpend'), value: `$${total}`, icon: DollarSign, className: 'from-emerald-500 to-teal-900' },
+  ];
+
+  const profileItems = [
+    { label: t('name'), value: user.name, icon: UserRound },
+    { label: t('email'), value: user.email || t('notSet'), icon: BadgeCheck },
+    { label: t('role'), value: user.role, icon: ShieldCheck },
+    { label: t('provider'), value: user.provider || 'LOCAL', icon: Sparkles },
+  ];
+
+  const navClass = ({ isActive }) => `rounded-2xl px-5 py-3 text-sm font-black transition ${isActive ? 'bg-slate-950 text-white shadow-lg' : 'bg-white/70 text-slate-600 hover:bg-white hover:text-slate-950'}`;
 
   return (
     <div className="min-h-screen bg-transparent">
-      <header className="border-b border-white/70 bg-white/80 shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-sky-700">{t('partnerDashboard')}</p>
-            <h1 className="mt-2 text-3xl font-black text-slate-950">{t('myAccount')}</h1>
+      <header className="relative overflow-hidden border-b border-white/70 bg-slate-950 text-white shadow-xl">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-35"
+          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=85)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-cwd-blue/70" />
+        <div className="relative mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-4 py-10 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.25em] text-sky-100 backdrop-blur">
+              <BadgeCheck className="h-4 w-4" />
+              {t('verifiedPartner')}
+            </p>
+            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">{t('myAccount')}</h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-200">{t('dashboardLead')}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-slate-600">{t('hi')}, {user.name}</span>
-            <button onClick={logout} className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2 font-bold text-white transition hover:bg-red-700">
+          <div className="rounded-[2rem] bg-white/10 p-5 text-right backdrop-blur">
+            <span className="block text-sm font-bold text-slate-200">{t('hi')}, {user.name}</span>
+            <button onClick={logout} className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-red-700">
               <LogOut className="h-4 w-4" />
               {t('logout')}
             </button>
@@ -50,16 +76,16 @@ const ClientDashboard = () => {
       </header>
 
       <nav className="border-b border-white/70 bg-white/70 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/account" className="border-b-2 border-cwd-blue py-4 text-base font-black text-slate-950">
+        <div className="mx-auto flex max-w-7xl gap-3 overflow-x-auto px-4 py-4 sm:px-6 lg:px-8">
+          <NavLink end to="/account" className={navClass}>
             {t('profile')}
-          </Link>
-          <Link to="/account/bookings" className="border-b-2 border-transparent py-4 text-base font-bold text-slate-600 hover:text-slate-950">
+          </NavLink>
+          <NavLink to="/account/bookings" className={navClass}>
             {t('myRentals')} ({bookings.length})
-          </Link>
-          <Link to="/account/cars" className="border-b-2 border-transparent py-4 text-base font-bold text-orange-700 hover:text-orange-800">
+          </NavLink>
+          <NavLink to="/account/cars" className={navClass}>
             {t('addCar')}
-          </Link>
+          </NavLink>
         </div>
       </nav>
 
@@ -67,12 +93,24 @@ const ClientDashboard = () => {
         {error && <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{error}</div>}
         <Routes>
           <Route path="/bookings" element={
-            <div className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur">
-              <h2 className="mb-6 text-2xl font-black text-slate-950">{t('backendRentals')}</h2>
+            <div className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur md:p-8">
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.25em] text-cwd-blue">{t('recentActivity')}</p>
+                  <h2 className="mt-2 text-3xl font-black text-slate-950">{t('backendRentals')}</h2>
+                </div>
+                <Link to="/cars" className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white">
+                  {t('planTrip')}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
               {loading ? (
                 <p className="text-slate-500">{t('loadingRentals')}</p>
               ) : bookings.length === 0 ? (
-                <p className="text-slate-500">{t('noRentals')}</p>
+                <div className="rounded-[2rem] bg-slate-50 p-8 text-center">
+                  <CarFront className="mx-auto mb-4 h-12 w-12 text-slate-300" />
+                  <p className="text-slate-500">{t('noRentals')}</p>
+                </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-slate-200">
@@ -105,31 +143,70 @@ const ClientDashboard = () => {
           <Route path="/" element={
             <div>
               <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-                <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
-                  <CalendarClock className="mb-4 h-7 w-7 text-orange-600" />
-                  <dt className="text-sm font-bold text-slate-500">{t('rentals')}</dt>
-                  <dd className="mt-2 text-4xl font-black text-slate-950">{bookings.length}</dd>
-                </div>
-                <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
-                  <CarFront className="mb-4 h-7 w-7 text-sky-700" />
-                  <dt className="text-sm font-bold text-slate-500">{t('activeRentals')}</dt>
-                  <dd className="mt-2 text-4xl font-black text-slate-950">{bookings.filter((booking) => booking.status === 'active').length}</dd>
-                </div>
-                <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
-                  <DollarSign className="mb-4 h-7 w-7 text-emerald-600" />
-                  <dt className="text-sm font-bold text-slate-500">{t('totalSpend')}</dt>
-                  <dd className="mt-2 text-4xl font-black text-slate-950">${total}</dd>
-                </div>
+                {statCards.map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <div key={card.label} className={`rounded-[2rem] bg-gradient-to-br ${card.className} p-6 text-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl`}>
+                      <Icon className="mb-7 h-8 w-8 text-white/90" />
+                      <dt className="text-sm font-black uppercase tracking-[0.2em] text-white/70">{card.label}</dt>
+                      <dd className="mt-3 text-5xl font-black">{card.value}</dd>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-xl backdrop-blur">
-                <h3 className="mb-5 text-2xl font-black text-slate-950">{t('profile')}</h3>
-                <div className="grid gap-4 text-slate-700 sm:grid-cols-2">
-                  <p><strong>{t('name')}:</strong> {user.name}</p>
-                  <p><strong>{t('email')}:</strong> {user.email || t('notSet')}</p>
-                  <p><strong>{t('role')}:</strong> {user.role}</p>
-                  <p><strong>{t('provider')}:</strong> {user.provider || 'LOCAL'}</p>
+              <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+                <div className="rounded-[2rem] border border-white/70 bg-white/90 p-8 shadow-xl backdrop-blur">
+                  <div className="mb-6 flex items-center gap-4">
+                    <span className="grid h-16 w-16 place-items-center rounded-3xl bg-sky-100 text-cwd-blue">
+                      <UserRound className="h-8 w-8" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-[0.25em] text-slate-400">{t('profileDetails')}</p>
+                      <h3 className="text-3xl font-black text-slate-950">{t('profile')}</h3>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {profileItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className="rounded-3xl bg-slate-50 p-5">
+                          <Icon className="mb-3 h-5 w-5 text-cwd-blue" />
+                          <p className="text-xs font-black uppercase tracking-widest text-slate-400">{item.label}</p>
+                          <p className="mt-2 break-words font-black text-slate-800">{item.value}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                <aside className="space-y-5">
+                  <div className="rounded-[2rem] bg-slate-950 p-7 text-white shadow-xl">
+                    <ShieldCheck className="mb-5 h-9 w-9 text-sky-300" />
+                    <h3 className="text-2xl font-black">{t('accountSecurity')}</h3>
+                    <p className="mt-3 leading-7 text-slate-300">{t('accountSecurityText')}</p>
+                  </div>
+                  <div className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
+                    <h3 className="mb-4 text-xl font-black text-slate-950">{t('quickActions')}</h3>
+                    <div className="grid gap-3">
+                      <Link to="/cars" className="flex items-center justify-between rounded-2xl bg-orange-50 px-4 py-3 font-black text-orange-800">
+                        {t('planTrip')} <CarFront className="h-4 w-4" />
+                      </Link>
+                      <Link to="/offices" className="flex items-center justify-between rounded-2xl bg-sky-50 px-4 py-3 font-black text-cwd-blue">
+                        {t('exploreOffices')} <MapPin className="h-4 w-4" />
+                      </Link>
+                      <Link to="/cancel-booking" className="flex items-center justify-between rounded-2xl bg-red-50 px-4 py-3 font-black text-red-700">
+                        {t('cancelHelp')} <LifeBuoy className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
+                    <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">{t('recentActivity')}</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-600">
+                      {latestRental ? `${latestRental.car} · ${latestRental.pickup} - ${latestRental.dropoff}` : t('noActivity')}
+                    </p>
+                  </div>
+                </aside>
               </div>
             </div>
           } />

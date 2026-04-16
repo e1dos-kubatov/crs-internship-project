@@ -102,17 +102,32 @@ const Offices = () => {
   };
 
   return (
-    <section className="min-h-screen bg-[radial-gradient(circle_at_top_left,#fff7ed,#f8fafc_44%,#e0f2fe)] px-4 py-12">
+    <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,#eff6ff,#f8fafc_44%,#e0f2fe)] px-4 py-12">
+      <div
+        className="absolute inset-x-0 top-0 h-[32rem] bg-cover bg-center opacity-30"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1800&q=85)' }}
+      />
+      <div className="absolute inset-x-0 top-0 h-[32rem] bg-gradient-to-b from-slate-950/80 via-cwd-blue/45 to-transparent" />
       <div className="mx-auto max-w-6xl">
-        <div className="mb-10 text-center">
-          <p className="text-sm font-black uppercase tracking-[0.4em] text-cwd-blue">{t('officesNetwork')}</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 md:text-5xl">{t('offices')}</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600">
+        <div className="relative mb-8 overflow-hidden rounded-[2.2rem] border border-white/20 bg-white/10 p-6 text-white shadow-2xl shadow-sky-950/20 backdrop-blur md:p-8">
+          <div className="absolute right-8 top-8 h-24 w-24 rounded-full border border-white/20 bg-white/10 blur-sm" />
+          <p className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.35em] text-sky-100 backdrop-blur">
+            {t('officesNetwork')}
+          </p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">{t('offices')}</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-sky-50/90">
             {t('officesLead')}
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {[t('airportOffice'), t('cityOffice'), 'Bishkek - Osh - Issyk-Kul'].map((item) => (
+              <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-white/85 backdrop-blur">
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="relative grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {offices.map((office) => (
             <article
               key={office.id}
@@ -120,11 +135,11 @@ const Offices = () => {
             >
               <div className="relative overflow-hidden p-5 text-white">
                 <div
-                  className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-300 group-hover:scale-105 group-hover:opacity-90"
+                  className="absolute inset-0 bg-cover bg-center opacity-100 transition duration-300 group-hover:scale-105"
                   style={{ backgroundImage: `url(${office.imageUrl})` }}
                 />
-                <div className={`absolute inset-0 bg-gradient-to-br ${office.accent} opacity-55`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-white/5" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${office.accent} opacity-25`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
                 <div className="relative mb-8 flex items-start justify-between gap-4">
                   <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 shadow-lg backdrop-blur">
                     <OfficeIcon type={office.type} />
@@ -170,11 +185,11 @@ const Offices = () => {
           <div className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-white shadow-2xl">
             <div className="relative overflow-hidden p-6 text-white">
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-80"
+                className="absolute inset-0 bg-cover bg-center opacity-100"
                 style={{ backgroundImage: `url(${selectedOffice.imageUrl})` }}
               />
-              <div className={`absolute inset-0 bg-gradient-to-br ${selectedOffice.accent} opacity-55`} />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-white/5" />
+              <div className={`absolute inset-0 bg-gradient-to-br ${selectedOffice.accent} opacity-25`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
               <div className="relative flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.3em] text-white/85 drop-shadow">{officeTypeLabel(selectedOffice)}</p>

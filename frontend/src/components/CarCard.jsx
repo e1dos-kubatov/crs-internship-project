@@ -16,8 +16,8 @@ const CarCard = ({ car }) => {
   ];
 
   return (
-    <div className="group flex min-h-[27rem] flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="group flex min-h-[27rem] flex-col overflow-hidden rounded-[2rem] border border-sky-100/80 bg-white/95 shadow-xl shadow-sky-950/10 backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:border-sky-200 hover:shadow-2xl">
+      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-sky-50 to-slate-100">
         <img 
           src={car.img} 
           alt={car.model.en}
@@ -29,31 +29,31 @@ const CarCard = ({ car }) => {
         >
 <HeartIcon className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-gray-600'}`} />
         </button>
-        <div className="absolute bottom-4 left-4 bg-slate-950/75 text-white px-3 py-1 rounded-full text-xs font-bold">
+        <div className="absolute bottom-4 left-4 bg-cwd-blue/90 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg shadow-sky-950/20">
           {car.available ? t('available') : car.status}
         </div>
       </div>
       
-      <div className="p-7 flex flex-col flex-1">
+      <div className="flex flex-1 flex-col p-6">
         <div className="mb-3">
           <h3 className="text-xl font-black text-slate-950 mb-1 line-clamp-1">{car.model.en}</h3>
           <div className="flex flex-wrap gap-1 text-xs text-gray-500">
             {specs.map((spec, idx) => (
-              <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full">
+              <span key={idx} className="px-2 py-1 bg-sky-50 text-slate-600 rounded-full">
                 {spec}
               </span>
             ))}
           </div>
         </div>
         
-        <div className="mt-auto grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
-          <div className="text-2xl font-black text-cwd-blue">
-            ${car.price}
-            <span className="text-lg font-normal text-gray-500">/{t('pricePerDay').toLowerCase()}</span>
+        <div className="mt-auto grid gap-4">
+          <div className="min-w-0 text-2xl font-black text-cwd-blue">
+            <span>${car.price}</span>
+            <span className="ml-1 text-base font-normal leading-6 text-gray-500">/ {t('pricePerDay').toLowerCase()}</span>
           </div>
           <Link
             to={`/cars/${car.id}`}
-            className="inline-flex min-w-32 items-center justify-center rounded-xl bg-cwd-blue px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-opacity-90 hover:shadow-xl"
+            className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-xl bg-gradient-to-r from-cwd-blue to-sky-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-sky-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl"
           >
             {t('viewDetails')}
           </Link>

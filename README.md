@@ -147,7 +147,7 @@ The old `CUSTOMER` role is removed from the active role model. Existing database
 ## Main Features
 
 - JWT login and protected API calls
-- OAuth2 login support for Google and GitHub
+- OAuth2 login support for Google
 - Public approved-car browsing
 - Search and filtering by price, type, transmission, fuel, and text
 - Rental creation through `/api/rentals`
@@ -207,11 +207,9 @@ cd C:\Users\Admin\crs-internship-project
 
 If the frontend port is busy, Vite may choose another port. Use the URL printed in the frontend PowerShell window.
 
-If OAuth2 login is not needed, local email/password login works without Google or GitHub credentials. To use OAuth2, configure:
+If OAuth2 login is not needed, local email/password login works without Google credentials. To use Google OAuth2, configure:
 
 ```powershell
-$env:GITHUB_CLIENT_ID="your-client-id"
-$env:GITHUB_CLIENT_SECRET="your-client-secret"
 $env:GOOGLE_CLIENT_ID="your-client-id"
 $env:GOOGLE_CLIENT_SECRET="your-client-secret"
 ```

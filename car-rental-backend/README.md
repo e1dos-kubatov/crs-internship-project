@@ -1,6 +1,6 @@
 # Car Rental Backend
 
-Spring Boot 3 backend for a Car Rental System using Java 17, PostgreSQL, JWT and OAuth2.
+Spring Boot 3 backend for a Car Rental System using Java 17, PostgreSQL, JWT and Google OAuth2.
 
 Run locally:
 

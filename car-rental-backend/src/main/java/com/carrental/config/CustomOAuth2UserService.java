@@ -22,7 +22,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // Let Spring fetch the user details from Google/GitHub
+        // Let Spring fetch the user details from Google.
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
@@ -71,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return email.trim().toLowerCase();
         }
 
-        // Fallback if user set email to private on GitHub
+        // Fallback if the OAuth provider does not return an email.
         String name = getString(attributes, "name");
         String id = extractProviderId(provider, attributes);
         String cleanName = name != null ? name.replaceAll("[^a-zA-Z0-9]", "").toLowerCase() : "user";

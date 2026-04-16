@@ -19,7 +19,7 @@ export const offices = [
     },
     mapQuery: 'Manas International Airport Bishkek Kyrgyzstan',
     accent: 'from-sky-600 to-blue-950',
-    imageUrl: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'osh-oss',
@@ -41,7 +41,7 @@ export const offices = [
     },
     mapQuery: 'Osh International Airport Kyrgyzstan',
     accent: 'from-orange-500 to-red-900',
-    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'bishkek-city',
@@ -63,7 +63,7 @@ export const offices = [
     },
     mapQuery: 'Ala-Too Square Bishkek Kyrgyzstan',
     accent: 'from-slate-800 to-sky-700',
-    imageUrl: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'yssyk-kul-iku',
@@ -85,7 +85,7 @@ export const offices = [
     },
     mapQuery: 'Issyk-Kul International Airport Tamchy Kyrgyzstan',
     accent: 'from-cyan-500 to-blue-900',
-    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'karakol-ikg',
@@ -107,7 +107,7 @@ export const offices = [
     },
     mapQuery: 'Karakol International Airport Kyrgyzstan',
     accent: 'from-emerald-600 to-slate-900',
-    imageUrl: 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'osh-city',
@@ -129,7 +129,7 @@ export const offices = [
     },
     mapQuery: 'Sulaiman-Too Osh Kyrgyzstan',
     accent: 'from-amber-500 to-slate-900',
-    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=85',
   },
   {
     id: 'jalal-abad-city',
@@ -151,6 +151,6 @@ export const offices = [
     },
     mapQuery: 'Jalal-Abad Kyrgyzstan city center',
     accent: 'from-lime-600 to-emerald-950',
-    imageUrl: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=85',
   },
 ];

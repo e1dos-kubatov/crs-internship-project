@@ -48,6 +48,134 @@ const aboutImages = [
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
 ];
 
+const richPages = {
+  destinations: {
+    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=85',
+    Icon: Map,
+    metric: '7',
+    metricLabel: { en: 'regional offices', ru: 'региональных офисов', kg: 'аймактык офис' },
+    points: {
+      en: ['Airport and city pickup points across Kyrgyzstan.', 'Routes for Bishkek, Osh, Issyk-Kul, Karakol, and Jalal-Abad.', 'Tourism-friendly office details with directions and services.'],
+      ru: ['Аэропортовые и городские точки получения по Кыргызстану.', 'Маршруты для Бишкека, Оша, Иссык-Куля, Каракола и Джалал-Абада.', 'Туристические детали офисов с маршрутами и услугами.'],
+      kg: ['Кыргызстан боюнча аэропорт жана шаардык алуу пункттары.', 'Бишкек, Ош, Ысык-Көл, Каракол жана Жалал-Абад маршруттары.', 'Туризмге ылайыктуу офис маалыматтары, маршруттар жана кызматтар.'],
+    },
+  },
+  feedback: {
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=85',
+    Icon: Sparkles,
+    metric: 'AIU',
+    metricLabel: { en: 'student project', ru: 'студенческий проект', kg: 'студенттик долбоор' },
+    points: {
+      en: ['Feedback helps improve booking, office content, and partner workflows.', 'Students can use real user comments to polish the platform.', 'Support channels are open for ideas, bugs, and design suggestions.'],
+      ru: ['Отзывы помогают улучшать бронирование, офисы и партнерские процессы.', 'Студенты могут использовать реальные комментарии для улучшения платформы.', 'Каналы поддержки открыты для идей, багов и предложений по дизайну.'],
+      kg: ['Пикирлер брондоо, офис маалыматтарын жана партнер процесстерин жакшыртат.', 'Студенттер чыныгы пикирлер аркылуу платформаны өнүктүрөт.', 'Идеялар, каталар жана дизайн сунуштары үчүн байланыш каналдары ачык.'],
+    },
+  },
+  privacy: {
+    image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=85',
+    Icon: ShieldCheck,
+    metric: 'JWT',
+    metricLabel: { en: 'secure sessions', ru: 'безопасные сессии', kg: 'коопсуз сессиялар' },
+    points: {
+      en: ['Account access is protected through authentication and role-based flows.', 'The project stores only information needed for rentals, listings, and admin safety.', 'Admin controls help keep user and fleet data cleaner.'],
+      ru: ['Доступ к аккаунтам защищен через authentication и роли.', 'Проект хранит только данные, нужные для аренд, объявлений и безопасности.', 'Админ-контроль помогает держать данные пользователей и автопарка чище.'],
+      kg: ['Аккаунтка кирүү authentication жана ролдор аркылуу корголот.', 'Долбоор ижара, жарыя жана коопсуздук үчүн керек маалыматты гана сактайт.', 'Админ көзөмөлү колдонуучу жана автопарк маалыматтарын таза кармайт.'],
+    },
+  },
+  legal: {
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1400&q=85',
+    Icon: ShieldCheck,
+    metric: '2026',
+    metricLabel: { en: 'AIU build', ru: 'разработка МУА', kg: 'МУА иши' },
+    points: {
+      en: ['This is an educational web application created for a car rental internship project.', 'Service information is written for demonstration and project presentation.', 'Final commercial use should be reviewed with real company legal documents.'],
+      ru: ['Это учебное web-приложение для internship-проекта аренды авто.', 'Информация об услугах написана для демонстрации и презентации проекта.', 'Для коммерческого запуска нужны реальные юридические документы компании.'],
+      kg: ['Бул унаа ижара internship долбоору үчүн окуу web-тиркемеси.', 'Кызмат маалыматы демонстрация жана презентация үчүн жазылган.', 'Коммерциялык колдонуу үчүн компаниянын чыныгы юридикалык документтери керек.'],
+    },
+  },
+  terms: {
+    image: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1400&q=85',
+    Icon: CarFront,
+    metric: '3',
+    metricLabel: { en: 'rental steps', ru: 'шага аренды', kg: 'ижара кадамы' },
+    points: {
+      en: ['Choose car and dates, then confirm booking through the backend.', 'Partners submit cars for admin approval before public listing.', 'Admins can manage rentals, users, and fleet safety.'],
+      ru: ['Выберите авто и даты, затем подтвердите бронь через backend.', 'Партнеры отправляют авто на одобрение перед публикацией.', 'Админы управляют арендами, пользователями и безопасностью автопарка.'],
+      kg: ['Унаа жана күндөрдү тандап, backend аркылуу бронду ырастаңыз.', 'Партнерлер унааны жарыялоодон мурун админге бекитүүгө жөнөтөт.', 'Админдер ижараларды, колдонуучуларды жана автопарк коопсуздугун башкарат.'],
+    },
+  },
+  modifyBooking: {
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=85',
+    Icon: Plane,
+    metric: '09-21',
+    metricLabel: { en: 'support hours', ru: 'часы поддержки', kg: 'колдоо убактысы' },
+    points: {
+      en: ['Use support to update pickup or return dates.', 'Share rental ID, car name, and preferred new timing.', 'Admins can verify rental status directly in the backend dashboard.'],
+      ru: ['Используйте поддержку для изменения даты получения или возврата.', 'Сообщите ID аренды, авто и желаемое новое время.', 'Админ может проверить статус аренды прямо в backend dashboard.'],
+      kg: ['Алуу же кайтаруу күнүн өзгөртүү үчүн колдоого кайрылыңыз.', 'Ижара ID, унаа аты жана жаңы убакытты жөнөтүңүз.', 'Админ ижара статусун backend dashboard ичинде текшере алат.'],
+    },
+  },
+};
+
+const getLocalized = (value, lang) => value?.[lang] || value?.en || value;
+
+const RichStaticPage = ({ page, pageContent, lang, t }) => {
+  const design = richPages[page];
+  const Icon = design.Icon;
+  const points = getLocalized(design.points, lang);
+
+  return (
+    <section className="overflow-hidden bg-[radial-gradient(circle_at_top_left,#fff7ed,#f8fafc_42%,#e0f2fe)] px-4 py-16">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-4 py-2 text-xs font-black uppercase tracking-[0.25em] text-cwd-blue">
+              <Icon className="h-4 w-4" />
+              {t('logo')}
+            </p>
+            <h1 className="mt-6 text-5xl font-black leading-tight tracking-tight text-slate-950 md:text-7xl">
+              {pageContent.title}
+            </h1>
+            <p className="mt-6 max-w-2xl text-xl leading-9 text-slate-600">
+              {pageContent.content}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/contact" className="rounded-2xl bg-slate-950 px-6 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl transition hover:-translate-y-0.5">
+                {t('contact')}
+              </Link>
+              <Link to="/offices" className="rounded-2xl bg-white px-6 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl transition hover:-translate-y-0.5">
+                {t('offices')}
+              </Link>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/90 shadow-2xl backdrop-blur">
+            <div className="relative min-h-[26rem]">
+              <img src={design.image} alt={pageContent.title} className="absolute inset-0 h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 rounded-[2rem] bg-white/90 p-6 shadow-xl backdrop-blur">
+                <p className="text-5xl font-black text-cwd-blue">{design.metric}</p>
+                <p className="mt-1 text-sm font-black uppercase tracking-[0.25em] text-slate-500">{getLocalized(design.metricLabel, lang)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {points.map((point) => (
+            <div key={point} className="rounded-[2rem] border border-white/80 bg-white/90 p-6 shadow-xl backdrop-blur">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-orange-100 text-orange-700">
+                <Sparkles className="h-5 w-5" />
+              </span>
+              <p className="mt-5 font-bold leading-8 text-slate-700">{point}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const AboutPage = ({ t }) => {
   const stats = t('aboutStats');
   const highlights = t('aboutHighlights');
@@ -152,6 +280,10 @@ const StaticPage = ({ page }) => {
   }
 
   const pageContent = staticContent[lang]?.[page] || staticContent.en[page];
+  if (pageContent && richPages[page]) {
+    return <RichStaticPage page={page} pageContent={pageContent} lang={lang} t={t} />;
+  }
+
   if (!pageContent) {
     return (
       <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4">

@@ -31,6 +31,8 @@ public class AdminSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         jdbcTemplate.update("update users set role = 'ROLE_PARTNER' where role = 'ROLE_CUSTOMER'");
+        jdbcTemplate.update("update cars set transmission = 'auto' where transmission is null");
+        jdbcTemplate.update("update cars set fuel = 'gas' where fuel is null");
 
         userRepository.findByEmail(adminEmail.trim().toLowerCase())
                 .orElseGet(() -> userRepository.save(User.builder()

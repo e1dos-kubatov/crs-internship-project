@@ -81,5 +81,7 @@ export const ordersApi = {
 export const adminApi = {
   users: () => request(api.get('/admin/users')),
   banUser: (id, payload) => request(api.patch(`/admin/users/${id}/ban`, payload)),
+  unbanUser: (id) => request(api.patch(`/admin/users/${id}/unban`)),
+  deleteUser: (id) => request(api.delete(`/admin/users/${id}`)),
   logs: () => request(api.get('/admin/logs')),
 };

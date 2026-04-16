@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { GitBranch, KeyRound, Mail, ShieldCheck } from 'lucide-react';
+import { GitBranch, KeyRound, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,35 +36,19 @@ const Login = () => {
       <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/20 bg-white/90 shadow-2xl backdrop-blur lg:grid-cols-[1.1fr_0.9fr]">
         <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
-            <div className="mb-10 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-orange-100">
-              <ShieldCheck className="h-4 w-4" />
-              JWT, OAuth2 and Spring Security connected
-            </div>
             <h1 className="text-5xl font-black leading-tight tracking-tight">
               Rent, list, approve and manage cars from one elegant workspace.
             </h1>
           </div>
-          <div className="grid grid-cols-3 gap-3 text-sm text-slate-300">
-            <div className="rounded-2xl bg-white/10 p-4">
-              <strong className="block text-2xl text-white">8081</strong>
-              Backend API
-            </div>
-            <div className="rounded-2xl bg-white/10 p-4">
-              <strong className="block text-2xl text-white">5173</strong>
-              React app
-            </div>
-            <div className="rounded-2xl bg-white/10 p-4">
-              <strong className="block text-2xl text-white">PARTNER</strong>
-              Default user
-            </div>
-          </div>
+          <p className="text-lg leading-8 text-slate-300">
+            Manage your rentals and approved fleet from a clean, secure workspace.
+          </p>
         </section>
 
         <section className="p-8 sm:p-12">
           <div className="mb-8">
             <p className="text-sm font-bold uppercase tracking-[0.3em] text-orange-600">Welcome back</p>
             <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Sign in</h2>
-            <p className="mt-3 text-slate-600">Use your backend account, or continue with OAuth2 when Google/GitHub credentials are configured.</p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>

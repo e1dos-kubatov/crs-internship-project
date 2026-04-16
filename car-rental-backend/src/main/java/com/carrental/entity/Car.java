@@ -48,8 +48,25 @@ public class Car {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerDay;
 
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'auto'")
+    @Builder.Default
+    private String transmission = "auto";
+
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'gas'")
+    @Builder.Default
+    private String fuel = "gas";
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl1;
+
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl2;
+
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl3;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

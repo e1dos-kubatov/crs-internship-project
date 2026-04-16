@@ -6,12 +6,6 @@ import { useBooking } from './BookingContext';
 import { offices as locations } from '../data/offices';
 import BookingSummary from './BookingSummary';
 
-const ChevronIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-  </svg>
-);
-
 const Hero = () => {
   const { t } = useLang();
   const { booking, updateBooking, TIME_SLOTS: slots } = useBooking();
@@ -42,10 +36,6 @@ const Hero = () => {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/55 to-orange-950/60"></div>
-        </div>
-
-        <div className="relative z-10 mb-8 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-bold uppercase tracking-[0.3em] text-orange-100 backdrop-blur">
-          Spring Boot + React integration
         </div>
 
         <h1 className="relative z-10 text-white text-4xl md:text-6xl font-black mb-12 text-center tracking-tight max-w-5xl leading-tight">
@@ -129,10 +119,7 @@ const Hero = () => {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
-            <button type="button" className="text-xs font-black flex items-center gap-2 hover:text-gray-300 transition-colors uppercase tracking-widest">
-              Worldwide Discount <ChevronIcon />
-            </button>
+          <div className="mt-8 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-end items-center gap-4">
             <button type="submit" className="rounded-2xl bg-gradient-to-r from-orange-500 to-sky-700 px-12 py-4 text-sm font-black uppercase tracking-widest shadow-xl transition-all hover:-translate-y-0.5">
               {t('searchCars')}
             </button>

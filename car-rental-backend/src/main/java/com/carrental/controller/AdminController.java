@@ -41,6 +41,24 @@ public class AdminController {
         );
     }
 
+    @PatchMapping("/users/{userId}/unban")
+    public ResponseEntity<ApiResponse<Void>> unbanUser(@PathVariable Long userId) {
+        adminService.unbanUser(userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("User unbanned successfully", null)
+        );
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("User deleted successfully", null)
+        );
+    }
+
     @GetMapping("/logs")
     // ИЗМЕНЕНО: То же самое здесь, используем hasAuthority
     @PreAuthorize("hasAuthority('ROLE_SUPERADMIN')")

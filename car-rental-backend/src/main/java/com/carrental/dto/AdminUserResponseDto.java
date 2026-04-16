@@ -14,6 +14,7 @@ public class AdminUserResponseDto {
     private Role role;
     private Provider provider;
     private boolean isDeleted;
+    private boolean banned;
     private String bannedReason;
 }
 

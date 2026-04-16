@@ -27,6 +27,7 @@ export const carFromApi = (car) => {
   const model = normalizeText(car.model);
   const name = `${brand} ${model}`.trim() || 'Rental car';
   const index = Number(car.id || 0) % carImages.length;
+  const images = [car.imageUrl1, car.imageUrl2, car.imageUrl3].filter(Boolean);
 
   return {
     ...car,
@@ -39,11 +40,11 @@ export const carFromApi = (car) => {
     price: Number(car.pricePerDay || car.price || 0),
     pricePerDay: Number(car.pricePerDay || car.price || 0),
     description: car.description || 'Comfortable city-ready rental car with verified owner details.',
-    transmission: car.transmission || 'Auto',
+    transmission: String(car.transmission || 'auto').toLowerCase(),
     fuel: car.fuel || 'gas',
-    type: car.type || 'sedan',
     seats: car.seats || 5,
-    img: car.img || carImages[index],
+    images: images.length > 0 ? images : [car.img || carImages[index]],
+    img: images[0] || car.img || carImages[index],
     available: Boolean(car.available),
     status: car.status || 'APPROVED',
   };
@@ -55,6 +56,11 @@ export const carToApi = (car) => ({
   year: Number(car.year || new Date().getFullYear()),
   vin: String(car.vin || '').trim().toUpperCase(),
   pricePerDay: Number(car.price || car.pricePerDay || 0),
+  transmission: String(car.transmission || 'auto').toLowerCase(),
+  fuel: String(car.fuel || 'gas').toLowerCase(),
+  imageUrl1: car.images?.[0] || car.imageUrl1 || '',
+  imageUrl2: car.images?.[1] || car.imageUrl2 || '',
+  imageUrl3: car.images?.[2] || car.imageUrl3 || '',
   description: car.description || '',
 });
 

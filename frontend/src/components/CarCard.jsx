@@ -14,8 +14,8 @@ const CarCard = ({ car }) => {
   ];
 
   return (
-    <div className="group flex h-[23rem] flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="group flex min-h-[27rem] flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
         <img 
           src={car.img} 
           alt={car.model.en}
@@ -32,7 +32,7 @@ const CarCard = ({ car }) => {
         </div>
       </div>
       
-      <div className="p-6 flex flex-col flex-1">
+      <div className="p-7 flex flex-col flex-1">
         <div className="mb-3">
           <h3 className="text-xl font-black text-slate-950 mb-1 line-clamp-1">{car.model.en}</h3>
           <div className="flex flex-wrap gap-1 text-xs text-gray-500">
@@ -44,14 +44,14 @@ const CarCard = ({ car }) => {
           </div>
         </div>
         
-        <div className="flex items-center justify-between mb-6 mt-auto">
+        <div className="mt-auto grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="text-2xl font-black text-cwd-blue">
             ${car.price}
             <span className="text-lg font-normal text-gray-500">/day</span>
           </div>
           <Link
             to={`/cars/${car.id}`}
-            className="bg-cwd-blue text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
+            className="inline-flex min-w-32 items-center justify-center rounded-xl bg-cwd-blue px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-opacity-90 hover:shadow-xl"
           >
             View Details
           </Link>

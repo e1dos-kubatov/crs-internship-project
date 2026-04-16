@@ -11,6 +11,9 @@ const emptyCar = {
   year: new Date().getFullYear(),
   vin: '',
   price: '',
+  transmission: 'auto',
+  fuel: 'gas',
+  images: ['', '', ''],
   description: '',
 };
 
@@ -57,6 +60,22 @@ const ManageCars = () => {
 
   const updateField = (field, value) => setNewCar((prev) => ({ ...prev, [field]: value }));
 
+  const updateImage = (index, value) => {
+    setNewCar((prev) => {
+      const images = [...(prev.images || ['', '', ''])];
+      images[index] = value;
+      return { ...prev, images };
+    });
+  };
+
+  const handleImageUpload = (index, file) => {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => updateImage(index, reader.result);
+    reader.readAsDataURL(file);
+  };
+
   const validate = () => {
     if (!newCar.brand || !newCar.modelName || !newCar.vin) return 'Brand, model, and VIN are required';
     if (String(newCar.vin).replaceAll(' ', '').length < 11) return 'VIN must be at least 11 characters';
@@ -99,6 +118,9 @@ const ManageCars = () => {
       year: car.year,
       vin: car.vin,
       price: car.price,
+      transmission: car.transmission || 'auto',
+      fuel: car.fuel || 'gas',
+      images: car.images || [car.img || '', '', ''],
       description: car.description,
     });
     setShowForm(true);
@@ -166,6 +188,42 @@ const ManageCars = () => {
             <input type="number" placeholder="Year" value={newCar.year} onChange={(e) => updateField('year', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
             <input placeholder="VIN, 11-17 chars" value={newCar.vin} onChange={(e) => updateField('vin', e.target.value)} className="rounded-2xl border border-slate-200 p-4 uppercase outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
             <input type="number" placeholder="Price per day" value={newCar.price} onChange={(e) => updateField('price', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <select value={newCar.transmission} onChange={(e) => updateField('transmission', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100">
+              <option value="auto">Auto</option>
+              <option value="manual">Manual</option>
+            </select>
+            <select value={newCar.fuel} onChange={(e) => updateField('fuel', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100">
+              <option value="gas">Gas</option>
+              <option value="diesel">Diesel</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+            <div className="md:col-span-2">
+              <p className="mb-3 text-sm font-bold text-slate-700">Car images, up to 3 from your device</p>
+              <div className="grid gap-4 md:grid-cols-3">
+                {[0, 1, 2].map((index) => (
+                  <div key={index} className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-3">
+                    {newCar.images?.[index] ? (
+                      <img src={newCar.images[index]} alt={`Car upload ${index + 1}`} className="mb-3 h-32 w-full rounded-xl object-cover" />
+                    ) : (
+                      <div className="mb-3 grid h-32 place-items-center rounded-xl bg-slate-100 text-sm font-bold text-slate-400">
+                        Image {index + 1}
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(index, e.target.files?.[0])}
+                      className="w-full text-xs text-slate-600 file:mr-2 file:rounded-full file:border-0 file:bg-cwd-blue file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                    />
+                    {newCar.images?.[index] && (
+                      <button type="button" onClick={() => updateImage(index, '')} className="mt-2 text-xs font-bold text-red-600 hover:text-red-700">
+                        Remove image
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             <textarea placeholder="Description" value={newCar.description} onChange={(e) => updateField('description', e.target.value)} className="min-h-28 rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 md:col-span-2" />
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -201,6 +259,10 @@ const ManageCars = () => {
               <div className="mb-5 flex items-center justify-between">
                 <span className="font-bold text-slate-500">{car.year}</span>
                 <strong className="text-2xl text-cwd-blue">${car.price}/day</strong>
+              </div>
+              <div className="mb-5 flex flex-wrap gap-2">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{car.transmission}</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{car.fuel}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => editCar(car)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-700 px-4 py-3 font-bold text-white">

@@ -19,7 +19,12 @@ public class PartnerOrderResponseDto {
     private Integer year;
     private String vin;
     private BigDecimal pricePerDay;
+    private String transmission;
+    private String fuel;
     private String description;
+    private String imageUrl1;
+    private String imageUrl2;
+    private String imageUrl3;
     private OrderStatus status;
     private String adminNote;
     private Long approvedCarId;

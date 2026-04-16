@@ -229,7 +229,12 @@ public class CarService {
                 .year(request.getYear())
                 .vin(normalizedVin)
                 .pricePerDay(request.getPricePerDay())
+                .transmission(normalizeTransmission(request.getTransmission()))
+                .fuel(normalizeFuel(request.getFuel()))
                 .description(request.getDescription())
+                .imageUrl1(request.getImageUrl1())
+                .imageUrl2(request.getImageUrl2())
+                .imageUrl3(request.getImageUrl3())
                 .status(status)
                 .available(available)
                 .owner(owner)
@@ -245,7 +250,12 @@ public class CarService {
         car.setYear(request.getYear());
         car.setVin(normalizedVin);
         car.setPricePerDay(request.getPricePerDay());
+        car.setTransmission(normalizeTransmission(request.getTransmission()));
+        car.setFuel(normalizeFuel(request.getFuel()));
         car.setDescription(request.getDescription());
+        car.setImageUrl1(request.getImageUrl1());
+        car.setImageUrl2(request.getImageUrl2());
+        car.setImageUrl3(request.getImageUrl3());
     }
 
     private CarRequestDto toCarRequest(PartnerOrderRequestDto request) {
@@ -255,7 +265,12 @@ public class CarService {
                 .year(request.getYear())
                 .vin(request.getVin())
                 .pricePerDay(request.getPricePerDay())
+                .transmission(request.getTransmission())
+                .fuel(request.getFuel())
                 .description(request.getDescription())
+                .imageUrl1(request.getImageUrl1())
+                .imageUrl2(request.getImageUrl2())
+                .imageUrl3(request.getImageUrl3())
                 .build();
     }
 
@@ -287,7 +302,12 @@ public class CarService {
                 .year(car.getYear())
                 .vin(car.getVin())
                 .pricePerDay(car.getPricePerDay())
+                .transmission(car.getTransmission())
+                .fuel(car.getFuel())
                 .description(car.getDescription())
+                .imageUrl1(car.getImageUrl1())
+                .imageUrl2(car.getImageUrl2())
+                .imageUrl3(car.getImageUrl3())
                 .status(car.getStatus())
                 .adminNote(car.getAdminNote())
                 .available(car.isAvailable())
@@ -308,11 +328,32 @@ public class CarService {
                 .year(car.getYear())
                 .vin(car.getVin())
                 .pricePerDay(car.getPricePerDay())
+                .transmission(car.getTransmission())
+                .fuel(car.getFuel())
                 .description(car.getDescription())
+                .imageUrl1(car.getImageUrl1())
+                .imageUrl2(car.getImageUrl2())
+                .imageUrl3(car.getImageUrl3())
                 .status(car.getStatus())
                 .adminNote(car.getAdminNote())
                 .approvedCarId(car.getStatus() == OrderStatus.APPROVED ? car.getId() : null)
                 .createdAt(car.getCreatedAt())
                 .build();
+    }
+
+    private String normalizeTransmission(String transmission) {
+        String value = transmission == null ? "" : transmission.trim().toLowerCase();
+        if (!value.equals("auto") && !value.equals("manual")) {
+            throw new BadRequestException("Transmission must be auto or manual");
+        }
+        return value;
+    }
+
+    private String normalizeFuel(String fuel) {
+        String value = fuel == null ? "" : fuel.trim().toLowerCase();
+        if (!value.equals("gas") && !value.equals("diesel") && !value.equals("hybrid")) {
+            throw new BadRequestException("Fuel must be gas, diesel, or hybrid");
+        }
+        return value;
     }
 }

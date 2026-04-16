@@ -52,9 +52,6 @@ const Register = () => {
         <div className="mb-8">
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-sky-700">Partner access</p>
           <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Create your account</h2>
-          <p className="mt-3 text-slate-600">
-            New users are created as PARTNER, so they can book cars and submit cars for admin approval.
-          </p>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>

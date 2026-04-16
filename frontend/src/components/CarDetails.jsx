@@ -26,7 +26,7 @@ const CarDetails = () => {
   }
 
   const isFavorite = favorites.includes(selectedCar.id);
-  const images = [
+  const images = selectedCar.images?.length ? selectedCar.images : [
     selectedCar.img,
     'https://images.unsplash.com/photo-1494976380-595b160b4c89?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1545156534-ef7f3b606a5d?auto=format&fit=crop&w=800&q=80',

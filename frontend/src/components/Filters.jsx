@@ -4,14 +4,12 @@ import { useRental } from '../context/RentalContext';
 const Filters = () => {
   const { filters, updateFilters, filteredCars } = useRental();
 
-  const types = ['sedan', 'suv', 'hatchback'];
   const transmissions = ['auto', 'manual'];
   const fuels = ['gas', 'diesel', 'hybrid'];
 
   const clearFilters = () => {
     updateFilters({
-      price: [0, 200],
-      type: [],
+      price: [0, 500],
       transmission: [],
       fuel: [],
       sort: 'price-asc',
@@ -65,29 +63,6 @@ const Filters = () => {
             onChange={(e) => updateFilters({ price: [Number(e.target.value), filters.price[1]] })}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cwd-blue"
           />
-        </div>
-      </div>
-
-      {/* Car Type */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">Car Type</label>
-        <div className="grid grid-cols-2 gap-2">
-          {types.map(type => (
-            <label key={type} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.type.includes(type)}
-                onChange={(e) => {
-                  const newTypes = e.target.checked
-                    ? [...filters.type, type]
-                    : filters.type.filter(t => t !== type);
-                  updateFilters({ type: newTypes });
-                }}
-                className="rounded border-gray-300 text-cwd-blue focus:ring-cwd-blue"
-              />
-              <span className="text-sm capitalize">{type}</span>
-            </label>
-          ))}
         </div>
       </div>
 

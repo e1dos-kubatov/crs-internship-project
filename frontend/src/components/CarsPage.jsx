@@ -38,7 +38,7 @@ const CarsPage = () => {
           
           <main className="flex-1">
             <div className="mb-8">
-              <div className="filters-header mb-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur">
+              <div className="filters-header mb-6 rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-xl backdrop-blur">
                 {filters.pickupDate && filters.dropoffDate ? (
                   <div>
                     <h1 className="text-3xl font-black text-slate-950 mb-2">
@@ -77,14 +77,14 @@ const CarsPage = () => {
                   Try adjusting your search or filters. There are plenty of cars available for rent.
                 </p>
                 <button
-                  onClick={() => updateFilters({ price: [0, 500], type: [], transmission: [], fuel: [], sort: 'price-asc', query: '' })}
+                  onClick={() => updateFilters({ price: [0, 500], transmission: [], fuel: [], sort: 'price-asc', query: '' })}
                   className="bg-cwd-blue text-white px-8 py-3 rounded-2xl font-bold hover:bg-opacity-90 transition-all"
                 >
                   Clear Filters
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {filteredCars.map(car => (
                   <CarCard key={car.id} car={car} />
                 ))}

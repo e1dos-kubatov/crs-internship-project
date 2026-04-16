@@ -14,9 +14,9 @@ const normalizeFallbackCar = (car) => ({
   year: car.year || 2024,
   vin: car.vin || `DEMO${String(car.id).padStart(8, '0')}`,
   pricePerDay: car.price,
-  type: car.type || 'sedan',
   fuel: car.fuel || 'gas',
   transmission: (car.transmission || 'Auto').toLowerCase(),
+  images: [car.img],
   available: true,
   status: 'APPROVED',
 });
@@ -26,7 +26,6 @@ const RentalProvider = ({ children }) => {
   const [filteredCars, setFilteredCars] = useState([]);
   const [filters, setFilters] = useState({
     price: [0, 500],
-    type: [],
     transmission: [],
     fuel: [],
     sort: 'price-asc',
@@ -77,7 +76,7 @@ const RentalProvider = ({ children }) => {
       result = result.filter((car) => car.model.en.toLowerCase().includes(query) || car.description.toLowerCase().includes(query));
     }
 
-    ['type', 'transmission', 'fuel'].forEach((type) => {
+    ['transmission', 'fuel'].forEach((type) => {
       if (filters[type].length > 0) {
         result = result.filter((car) => filters[type].includes(String(car[type]).toLowerCase()));
       }

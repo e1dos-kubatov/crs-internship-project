@@ -35,5 +35,15 @@ public class CarRequestDto {
     @DecimalMin(value = "0.01", message = "Price per day must be greater than zero")
     private BigDecimal pricePerDay;
 
+    @NotBlank(message = "Transmission is required")
+    private String transmission;
+
+    @NotBlank(message = "Fuel is required")
+    private String fuel;
+
+    private String imageUrl1;
+    private String imageUrl2;
+    private String imageUrl3;
+
     private String description;
 }

@@ -3,6 +3,7 @@ import { CheckCircle2, RotateCcw, XCircle } from 'lucide-react';
 import { rentalsApi } from '../api/client';
 import { rentalFromApi } from '../api/adapters';
 import { useRental } from '../context/RentalContext';
+import { useLang } from '../context/LangContext';
 
 const statusStyles = {
   active: 'bg-emerald-100 text-emerald-700',
@@ -12,6 +13,7 @@ const statusStyles = {
 
 const AdminBookings = () => {
   const { getAllRentals } = useRental();
+  const { t } = useLang();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,12 +48,12 @@ const AdminBookings = () => {
     <div className="p-4 sm:p-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">Admin control</p>
-          <h1 className="mt-2 text-3xl font-black text-slate-950">Rental history</h1>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">{t('adminControl')}</p>
+          <h1 className="mt-2 text-3xl font-black text-slate-950">{t('rentalHistory')}</h1>
         </div>
         <button onClick={loadBookings} className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 font-bold text-white">
           <RotateCcw className="h-4 w-4" />
-          Refresh
+          {t('refresh')}
         </button>
       </div>
 
@@ -59,21 +61,21 @@ const AdminBookings = () => {
 
       <div className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 shadow-xl backdrop-blur">
         {loading ? (
-          <p className="p-8 text-slate-500">Loading rentals...</p>
+          <p className="p-8 text-slate-500">{t('loadingRentals')}</p>
         ) : bookings.length === 0 ? (
-          <p className="p-8 text-slate-500">No backend rentals yet.</p>
+          <p className="p-8 text-slate-500">{t('noBackendRentals')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">Car</th>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">Dates</th>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-black uppercase tracking-wider text-slate-500">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('id')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('car')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('user')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('dates')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('total')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('status')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-black uppercase tracking-wider text-slate-500">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -91,10 +93,10 @@ const AdminBookings = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => updateStatus(booking.id, 'COMPLETED')} className="rounded-xl bg-emerald-600 p-2 text-white" title="Complete">
+                        <button onClick={() => updateStatus(booking.id, 'COMPLETED')} className="rounded-xl bg-emerald-600 p-2 text-white" title={t('complete')}>
                           <CheckCircle2 className="h-4 w-4" />
                         </button>
-                        <button onClick={() => updateStatus(booking.id, 'CANCELLED')} className="rounded-xl bg-red-600 p-2 text-white" title="Cancel">
+                        <button onClick={() => updateStatus(booking.id, 'CANCELLED')} className="rounded-xl bg-red-600 p-2 text-white" title={t('cancel')}>
                           <XCircle className="h-4 w-4" />
                         </button>
                       </div>

@@ -10,18 +10,18 @@ const BookingSummary = () => {
 
   return (
     <section className="container mx-auto bg-transparent px-4 py-20">
-      <h2 className="mb-8 text-center text-3xl font-black text-slate-950">{t('total')} Summary</h2>
+      <h2 className="mb-8 text-center text-3xl font-black text-slate-950">{t('bookingSummary')}</h2>
       <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
         <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
-          <h3 className="mb-4 text-xl font-black">Booking details</h3>
+          <h3 className="mb-4 text-xl font-black">{t('bookingDetails')}</h3>
           <ul className="space-y-2 text-sm text-slate-600">
-            <li>Pickup: Bishkek Airport - {booking.pickupDate} {booking.pickupTime}</li>
-            <li>Dropoff: Bishkek City - {booking.dropoffDate} {booking.dropoffTime}</li>
-            <li>Days: {booking.days}</li>
+            <li>{t('pickup')}: Bishkek Airport - {booking.pickupDate} {booking.pickupTime}</li>
+            <li>{t('dropoff')}: Bishkek City - {booking.dropoffDate} {booking.dropoffTime}</li>
+            <li>{t('days')}: {booking.days}</li>
           </ul>
         </div>
         <div className="rounded-[2rem] bg-white/85 p-6 shadow-xl backdrop-blur">
-          <h3 className="mb-4 text-xl font-black">Available cars ({searchResults.length})</h3>
+          <h3 className="mb-4 text-xl font-black">{t('availableCars')} ({searchResults.length})</h3>
           <div className="space-y-3">
             {searchResults.map((car) => (
               <div key={car.id} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3">

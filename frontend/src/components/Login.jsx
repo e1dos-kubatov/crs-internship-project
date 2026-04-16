@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { GitBranch, KeyRound, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const { login, loginWithOAuth } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,8 +15,8 @@ const Login = () => {
 
   const oauthMessage = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('oauth') === 'error' ? params.get('message') || 'OAuth login failed' : '';
-  }, []);
+    return params.get('oauth') === 'error' ? params.get('message') || t('oauthLoginFailed') : '';
+  }, [t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,23 +39,23 @@ const Login = () => {
         <section className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
             <h1 className="text-5xl font-black leading-tight tracking-tight">
-              Rent, list, approve and manage cars from one elegant workspace.
+              {t('loginSideTitle')}
             </h1>
           </div>
           <p className="text-lg leading-8 text-slate-300">
-            Manage your rentals and approved fleet from a clean, secure workspace.
+            {t('loginSideText')}
           </p>
         </section>
 
         <section className="p-8 sm:p-12">
           <div className="mb-8">
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-orange-600">Welcome back</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">Sign in</h2>
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-orange-600">{t('welcomeBack')}</p>
+            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950">{t('signIn')}</h2>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700">Email</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700">{t('email')}</span>
               <span className="relative block">
                 <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <input
@@ -69,7 +71,7 @@ const Login = () => {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-slate-700">Password</span>
+              <span className="mb-2 block text-sm font-semibold text-slate-700">{t('password')}</span>
               <span className="relative block">
                 <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 <input
@@ -78,7 +80,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-white px-12 py-4 text-slate-900 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
-                  placeholder="Your password"
+                  placeholder={t('passwordPlaceholder')}
                   required
                 />
               </span>
@@ -95,7 +97,7 @@ const Login = () => {
               disabled={submitting}
               className="w-full rounded-2xl bg-slate-950 px-6 py-4 font-black text-white shadow-xl shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {submitting ? 'Signing in...' : 'Sign in'}
+              {submitting ? t('signingIn') : t('signIn')}
             </button>
           </form>
 
@@ -125,9 +127,9 @@ const Login = () => {
           </div>
 
           <p className="mt-8 text-center text-sm text-slate-600">
-            No account yet?{' '}
+            {t('noAccount')}{' '}
             <button onClick={() => navigate('/register')} className="font-black text-orange-600 hover:text-orange-700">
-              Create a partner account
+              {t('createPartnerAccount')}
             </button>
           </p>
         </section>

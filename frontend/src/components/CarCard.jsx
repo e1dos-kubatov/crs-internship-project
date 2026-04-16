@@ -2,15 +2,17 @@ import React from 'react';
 import { useRental } from '../context/RentalContext';
 import { Link } from 'react-router-dom';
 import HeartIcon from './icons/HeartIcon';
+import { useLang } from '../context/LangContext';
 
 const CarCard = ({ car }) => {
   const { toggleFavorite, favorites } = useRental();
+  const { t } = useLang();
   const isFavorite = favorites.includes(car.id);
 
   const specs = [
-    `${car.seats} seats`,
-    car.transmission,
-    car.fuel
+    `${car.seats} ${t('seats')}`,
+    t(car.transmission),
+    t(car.fuel)
   ];
 
   return (
@@ -28,7 +30,7 @@ const CarCard = ({ car }) => {
 <HeartIcon className={`w-5 h-5 ${isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-gray-600'}`} />
         </button>
         <div className="absolute bottom-4 left-4 bg-slate-950/75 text-white px-3 py-1 rounded-full text-xs font-bold">
-          {car.available ? 'Available' : car.status}
+          {car.available ? t('available') : car.status}
         </div>
       </div>
       
@@ -47,13 +49,13 @@ const CarCard = ({ car }) => {
         <div className="mt-auto grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="text-2xl font-black text-cwd-blue">
             ${car.price}
-            <span className="text-lg font-normal text-gray-500">/day</span>
+            <span className="text-lg font-normal text-gray-500">/{t('pricePerDay').toLowerCase()}</span>
           </div>
           <Link
             to={`/cars/${car.id}`}
             className="inline-flex min-w-32 items-center justify-center rounded-xl bg-cwd-blue px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-opacity-90 hover:shadow-xl"
           >
-            View Details
+            {t('viewDetails')}
           </Link>
         </div>
       </div>

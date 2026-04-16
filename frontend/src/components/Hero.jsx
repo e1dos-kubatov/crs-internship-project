@@ -7,7 +7,7 @@ import { offices as locations } from '../data/offices';
 import BookingSummary from './BookingSummary';
 
 const Hero = () => {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const { booking, updateBooking, TIME_SLOTS: slots } = useBooking();
   const { updateFilters } = useRental();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const Hero = () => {
         </div>
 
         <h1 className="relative z-10 text-white text-4xl md:text-6xl font-black mb-12 text-center tracking-tight max-w-5xl leading-tight">
-          {t('title')}
+          {t('heroTitle')}
         </h1>
 
         <form onSubmit={handleSearch} className="relative z-10 w-full max-w-6xl rounded-[2rem] border border-white/15 bg-slate-950/80 p-8 text-white shadow-2xl backdrop-blur-xl">
@@ -54,7 +54,7 @@ const Hero = () => {
                     onChange={(e) => updateBooking({ pickup: e.target.value })}
                     className="w-full bg-white text-gray-800 p-3 pr-10 appearance-none rounded text-sm font-medium focus:ring-2 focus:ring-cwd-blue outline-none"
                   >
-                    {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name.en}</option>)}
+                    {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name[lang] || loc.name.en}</option>)}
                   </select>
                 </div>
               </div>
@@ -67,7 +67,7 @@ const Hero = () => {
                     onChange={(e) => updateBooking({ dropoff: e.target.value })}
                     className="w-full bg-white text-gray-800 p-3 pr-10 appearance-none rounded text-sm font-medium focus:ring-2 focus:ring-cwd-blue outline-none"
                   >
-                    {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name.en}</option>)}
+                    {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name[lang] || loc.name.en}</option>)}
                   </select>
                 </div>
               </div>

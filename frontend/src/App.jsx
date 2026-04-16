@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
 import Header from './components/Header';
@@ -39,7 +39,23 @@ const ClientProtectedRoute = ({ children }) => {
   return children;
 };
 
-const StaticPageWrapper = ({ page }) => <StaticPage page={page} />;
+const staticPageMap = {
+  about: 'aboutUs',
+  feedback: 'feedback',
+  destinations: 'destinations',
+  fleet: 'fleet',
+  privacy: 'privacy',
+  legal: 'legal',
+  terms: 'terms',
+  policies: 'policies',
+  'modify-booking': 'modifyBooking',
+  'cancel-booking': 'cancelBooking',
+};
+
+const StaticPageWrapper = () => {
+  const { page } = useParams();
+  return <StaticPage page={staticPageMap[page] || page} />;
+};
 
 function AppContent() {
   return (

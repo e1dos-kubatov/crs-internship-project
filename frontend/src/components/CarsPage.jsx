@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRental } from '../context/RentalContext';
+import { useLang } from '../context/LangContext';
 import Filters from './Filters';
 import CarCard from './CarCard';
 
 const CarsPage = () => {
   const { filteredCars, filters, loading, error, updateFilters } = useRental();
+  const { t } = useLang();
 
   if (loading) {
     return (
@@ -42,18 +44,18 @@ const CarsPage = () => {
                 {filters.pickupDate && filters.dropoffDate ? (
                   <div>
                     <h1 className="text-3xl font-black text-slate-950 mb-2">
-                      Active cars available {filters.pickupDate} - {filters.dropoffDate}
+                      {t('available')} {filters.pickupDate} - {filters.dropoffDate}
                     </h1>
                     <p className="text-lg text-slate-600">
-                      {filteredCars.length} cars found for your search
+                      {filteredCars.length} {t('carsFound')}
                     </p>
                   </div>
                 ) : (
                   <>
-                    <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">Live fleet</p>
-                    <h1 className="mt-2 text-4xl font-black text-slate-950 mb-2">Cars for rent</h1>
+                    <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">{t('liveFleet')}</p>
+                    <h1 className="mt-2 text-4xl font-black text-slate-950 mb-2">{t('carsForRent')}</h1>
                     <p className="text-xl text-slate-600">
-                      {filteredCars.length} approved backend cars available
+                      {filteredCars.length} {t('approvedCarsAvailable')}
                     </p>
                   </>
                 )}
@@ -72,15 +74,15 @@ const CarsPage = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-4V7m8 10v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">No cars found</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('noCarsFound')}</h2>
                 <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  Try adjusting your search or filters. There are plenty of cars available for rent.
+                  {t('noCarsText')}
                 </p>
                 <button
                   onClick={() => updateFilters({ price: [0, 500], transmission: [], fuel: [], sort: 'price-asc', query: '' })}
                   className="bg-cwd-blue text-white px-8 py-3 rounded-2xl font-bold hover:bg-opacity-90 transition-all"
                 >
-                  Clear Filters
+                  {t('clearFilters')}
                 </button>
               </div>
             ) : (

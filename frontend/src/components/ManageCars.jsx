@@ -3,6 +3,7 @@ import { Check, Pencil, Plus, RefreshCcw, Trash2, X } from 'lucide-react';
 import { carsApi } from '../api/client';
 import { carFromApi } from '../api/adapters';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
 
 const emptyCar = {
@@ -26,6 +27,7 @@ const statusBadge = {
 const ManageCars = () => {
   const { user } = useAuth();
   const { getMyCars, getAdminCars, saveCar, createOrder, deleteCar } = useRental();
+  const { t } = useLang();
   const [cars, setCars] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newCar, setNewCar] = useState(emptyCar);
@@ -77,9 +79,9 @@ const ManageCars = () => {
   };
 
   const validate = () => {
-    if (!newCar.brand || !newCar.modelName || !newCar.vin) return 'Brand, model, and VIN are required';
-    if (String(newCar.vin).replaceAll(' ', '').length < 11) return 'VIN must be at least 11 characters';
-    if (Number(newCar.price) <= 0) return 'Price must be greater than zero';
+    if (!newCar.brand || !newCar.modelName || !newCar.vin) return t('brandModelVinRequired');
+    if (String(newCar.vin).replaceAll(' ', '').length < 11) return t('vinMinLength');
+    if (Number(newCar.price) <= 0) return t('priceGreaterThanZero');
     return '';
   };
 
@@ -95,13 +97,13 @@ const ManageCars = () => {
     try {
       if (editingId) {
         await saveCar(newCar, editingId);
-        setNotice('Car updated. Partner edits return to pending approval.');
+        setNotice(t('carUpdated'));
       } else if (isAdmin) {
         await saveCar(newCar);
-        setNotice('Admin car created and approved immediately.');
+        setNotice(t('adminCarCreated'));
       } else {
         await createOrder(newCar);
-        setNotice('Car submitted to admin for approval.');
+        setNotice(t('carSubmitted'));
       }
       resetForm();
       await loadCars();
@@ -127,12 +129,12 @@ const ManageCars = () => {
   };
 
   const removeCar = async (id) => {
-    if (!confirm('Delete this car from the backend?')) return;
+    if (!confirm(t('deleteCarConfirm'))) return;
     setError('');
     try {
       await deleteCar(id);
       setCars((prev) => prev.filter((car) => car.id !== id));
-      setNotice('Car deleted.');
+      setNotice(t('carDeleted'));
     } catch (deleteError) {
       setError(deleteError.message);
     }
@@ -153,14 +155,14 @@ const ManageCars = () => {
     <div className="mx-auto max-w-7xl p-4 sm:p-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">{isAdmin ? 'Admin fleet' : 'Partner garage'}</p>
-          <h1 className="mt-2 text-3xl font-black text-slate-950">Manage cars</h1>
-          <p className="mt-2 text-slate-600">{isAdmin ? 'Approve, reject, edit, or create cars.' : 'Submit your cars for admin approval and manage your listings.'}</p>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">{isAdmin ? t('adminFleet') : t('partnerGarage')}</p>
+          <h1 className="mt-2 text-3xl font-black text-slate-950">{t('manageCars')}</h1>
+          <p className="mt-2 text-slate-600">{isAdmin ? t('manageCarsAdminText') : t('manageCarsPartnerText')}</p>
         </div>
         <div className="flex gap-3">
           <button onClick={loadCars} className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 font-bold text-slate-800 shadow">
             <RefreshCcw className="h-4 w-4" />
-            Refresh
+            {t('refresh')}
           </button>
           <button
             onClick={() => {
@@ -171,7 +173,7 @@ const ManageCars = () => {
             className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-black text-white shadow-xl"
           >
             <Plus className="h-4 w-4" />
-            {showForm ? 'Close form' : 'Add car'}
+            {showForm ? t('closeForm') : t('addCar')}
           </button>
         </div>
       </div>
@@ -181,24 +183,24 @@ const ManageCars = () => {
 
       {showForm && (
         <div className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur md:p-8">
-          <h2 className="mb-6 text-2xl font-black text-slate-950">{editingId ? 'Edit car' : isAdmin ? 'Create approved car' : 'Submit partner car'}</h2>
+          <h2 className="mb-6 text-2xl font-black text-slate-950">{editingId ? t('editCar') : isAdmin ? t('createApprovedCar') : t('submitPartnerCar')}</h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <input placeholder="Brand" value={newCar.brand} onChange={(e) => updateField('brand', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
-            <input placeholder="Model" value={newCar.modelName} onChange={(e) => updateField('modelName', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
-            <input type="number" placeholder="Year" value={newCar.year} onChange={(e) => updateField('year', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
-            <input placeholder="VIN, 11-17 chars" value={newCar.vin} onChange={(e) => updateField('vin', e.target.value)} className="rounded-2xl border border-slate-200 p-4 uppercase outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
-            <input type="number" placeholder="Price per day" value={newCar.price} onChange={(e) => updateField('price', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input placeholder={t('brand')} value={newCar.brand} onChange={(e) => updateField('brand', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input placeholder={t('model')} value={newCar.modelName} onChange={(e) => updateField('modelName', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input type="number" placeholder={t('year')} value={newCar.year} onChange={(e) => updateField('year', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input placeholder={t('vin')} value={newCar.vin} onChange={(e) => updateField('vin', e.target.value)} className="rounded-2xl border border-slate-200 p-4 uppercase outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
+            <input type="number" placeholder={t('pricePerDay')} value={newCar.price} onChange={(e) => updateField('price', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" />
             <select value={newCar.transmission} onChange={(e) => updateField('transmission', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100">
-              <option value="auto">Auto</option>
-              <option value="manual">Manual</option>
+              <option value="auto">{t('auto')}</option>
+              <option value="manual">{t('manual')}</option>
             </select>
             <select value={newCar.fuel} onChange={(e) => updateField('fuel', e.target.value)} className="rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100">
-              <option value="gas">Gas</option>
-              <option value="diesel">Diesel</option>
-              <option value="hybrid">Hybrid</option>
+              <option value="gas">{t('gas')}</option>
+              <option value="diesel">{t('diesel')}</option>
+              <option value="hybrid">{t('hybrid')}</option>
             </select>
             <div className="md:col-span-2">
-              <p className="mb-3 text-sm font-bold text-slate-700">Car images, up to 3 from your device</p>
+              <p className="mb-3 text-sm font-bold text-slate-700">{t('carImages')}</p>
               <div className="grid gap-4 md:grid-cols-3">
                 {[0, 1, 2].map((index) => (
                   <div key={index} className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-3">
@@ -206,7 +208,7 @@ const ManageCars = () => {
                       <img src={newCar.images[index]} alt={`Car upload ${index + 1}`} className="mb-3 h-32 w-full rounded-xl object-cover" />
                     ) : (
                       <div className="mb-3 grid h-32 place-items-center rounded-xl bg-slate-100 text-sm font-bold text-slate-400">
-                        Image {index + 1}
+                        {t('image')} {index + 1}
                       </div>
                     )}
                     <input
@@ -217,21 +219,21 @@ const ManageCars = () => {
                     />
                     {newCar.images?.[index] && (
                       <button type="button" onClick={() => updateImage(index, '')} className="mt-2 text-xs font-bold text-red-600 hover:text-red-700">
-                        Remove image
+                        {t('removeImage')}
                       </button>
                     )}
                   </div>
                 ))}
               </div>
             </div>
-            <textarea placeholder="Description" value={newCar.description} onChange={(e) => updateField('description', e.target.value)} className="min-h-28 rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 md:col-span-2" />
+            <textarea placeholder={t('description')} value={newCar.description} onChange={(e) => updateField('description', e.target.value)} className="min-h-28 rounded-2xl border border-slate-200 p-4 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 md:col-span-2" />
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <button type="button" onClick={submitCar} className="rounded-2xl bg-emerald-600 px-6 py-3 font-black text-white hover:bg-emerald-700">
-              {editingId ? 'Update car' : isAdmin ? 'Create car' : 'Send for approval'}
+              {editingId ? t('updateCar') : isAdmin ? t('createCar') : t('sendForApproval')}
             </button>
             <button type="button" onClick={resetForm} className="rounded-2xl bg-slate-200 px-6 py-3 font-black text-slate-800 hover:bg-slate-300">
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </div>
@@ -239,9 +241,9 @@ const ManageCars = () => {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {loading ? (
-          <p className="text-slate-500">Loading cars...</p>
+          <p className="text-slate-500">{t('loadingCars')}</p>
         ) : cars.length === 0 ? (
-          <div className="rounded-[2rem] bg-white/85 p-8 text-slate-600 shadow-xl">No cars yet. Add your first car to start.</div>
+          <div className="rounded-[2rem] bg-white/85 p-8 text-slate-600 shadow-xl">{t('noCarsYet')}</div>
         ) : cars.map((car) => (
           <div key={car.id} className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-xl backdrop-blur">
             <img src={car.img} alt={car.model.en} className="h-52 w-full object-cover" />
@@ -258,31 +260,31 @@ const ManageCars = () => {
               <p className="mb-5 line-clamp-2 text-sm text-slate-600">{car.description}</p>
               <div className="mb-5 flex items-center justify-between">
                 <span className="font-bold text-slate-500">{car.year}</span>
-                <strong className="text-2xl text-cwd-blue">${car.price}/day</strong>
+                <strong className="text-2xl text-cwd-blue">${car.price}/{t('perDay')}</strong>
               </div>
               <div className="mb-5 flex flex-wrap gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{car.transmission}</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{car.fuel}</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{t(car.transmission)}</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-700">{t(car.fuel)}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => editCar(car)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-700 px-4 py-3 font-bold text-white">
                   <Pencil className="h-4 w-4" />
-                  Edit
+                  {t('edit')}
                 </button>
                 <button onClick={() => removeCar(car.id)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-bold text-white">
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  {t('delete')}
                 </button>
                 {isAdmin && car.status !== 'APPROVED' && (
                   <button onClick={() => decideCar(car.id, 'APPROVE')} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 font-bold text-white">
                     <Check className="h-4 w-4" />
-                    Approve
+                    {t('approve')}
                   </button>
                 )}
                 {isAdmin && car.status !== 'REJECTED' && (
                   <button onClick={() => decideCar(car.id, 'REJECT')} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-800 px-4 py-3 font-bold text-white">
                     <X className="h-4 w-4" />
-                    Reject
+                    {t('reject')}
                   </button>
                 )}
               </div>

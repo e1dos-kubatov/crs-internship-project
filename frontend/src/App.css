@@ -1,0 +1,138 @@
+:root {
+  --cwd-blue: #00008b;
+  --cwd-dark: #000050;
+  --cwd-accent: #0056b3;
+  --cwd-light: #f4f7f9;
+  --cwd-white: #ffffff;
+  --cwd-text: #333333;
+  --cwd-border: #d1d8e0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--cwd-text);
+  background-color: var(--cwd-white);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Навигация */
+.navbar {
+  background-color: var(--cwd-blue);
+  padding: 0 5%;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-links button {
+  background: none;
+  border: none;
+  color: var(--cwd-white);
+  margin-left: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.3s;
+}
+
+.nav-links button:hover { opacity: 0.8; }
+
+/* Виджет бронирования */
+.booking-container {
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 4px;
+  color: white;
+  width: 90%;
+  max-width: 1100px;
+  margin: -100px auto 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.booking-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.step-number {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-field label {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.input-field select, .input-field input {
+  padding: 12px;
+  background: var(--cwd-white);
+  border: 1px solid var(--cwd-border);
+  border-radius: 2px;
+}
+
+/* Сетка выбора времени */
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  background: #222;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.time-slot {
+  background: transparent;
+  border: 1px solid #444;
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.time-slot.active { background: var(--cwd-blue); border-color: var(--cwd-blue); }
+
+.rent-button {
+  background-color: var(--cwd-accent);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 20px;
+  float: right;
+  transition: background 0.3s;
+}
+
+.rent-button:hover { background-color: var(--cwd-blue); }
+
+/* Адаптивность */
+@media (max-width: 992px) {
+  .booking-row { grid-template-columns: 1fr; }
+  .navbar { padding: 0 20px; }
+  .nav-links { display: none; } /* Для продакшена заменить на гамбургер-меню */
+}

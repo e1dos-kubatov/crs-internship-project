@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
 import ManageCars from './ManageCars';
+import ProfilePhoto from './ProfilePhoto';
 
 const ClientDashboard = () => {
   const { user, logout } = useAuth();
@@ -142,14 +143,14 @@ const ClientDashboard = () => {
           <Route path="/cars" element={<ManageCars />} />
           <Route path="/" element={
             <div>
-              <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div className="mx-auto mb-8 grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-3">
                 {statCards.map((card) => {
                   const Icon = card.icon;
                   return (
-                    <div key={card.label} className={`rounded-[2rem] bg-gradient-to-br ${card.className} p-6 text-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl`}>
-                      <Icon className="mb-7 h-8 w-8 text-white/90" />
-                      <dt className="text-sm font-black uppercase tracking-[0.2em] text-white/70">{card.label}</dt>
-                      <dd className="mt-3 text-5xl font-black">{card.value}</dd>
+                    <div key={card.label} className={`rounded-[1.35rem] bg-gradient-to-br ${card.className} p-4 text-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl`}>
+                      <Icon className="mb-4 h-6 w-6 text-white/90" />
+                      <dt className="text-[11px] font-black uppercase tracking-[0.22em] text-white/70">{card.label}</dt>
+                      <dd className="mt-1.5 text-3xl font-black">{card.value}</dd>
                     </div>
                   );
                 })}
@@ -157,10 +158,8 @@ const ClientDashboard = () => {
 
               <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
                 <div className="rounded-[2rem] border border-white/70 bg-white/90 p-8 shadow-xl backdrop-blur">
-                  <div className="mb-6 flex items-center gap-4">
-                    <span className="grid h-16 w-16 place-items-center rounded-3xl bg-sky-100 text-cwd-blue">
-                      <UserRound className="h-8 w-8" />
-                    </span>
+                  <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center">
+                    <ProfilePhoto user={user} />
                     <div>
                       <p className="text-sm font-black uppercase tracking-[0.25em] text-slate-400">{t('profileDetails')}</p>
                       <h3 className="text-3xl font-black text-slate-950">{t('profile')}</h3>

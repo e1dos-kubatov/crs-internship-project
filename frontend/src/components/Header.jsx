@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Car, ChevronDown, LayoutDashboard, LogOut, Menu, Sparkles } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, LogOut, Menu, Sparkles } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -56,14 +56,8 @@ const Header = () => {
   return (
       <header className="sticky top-0 z-50 border-b border-white/70 bg-white/80 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-orange-500 to-sky-700 text-white shadow-lg">
-            <Car className="h-6 w-6" />
-          </span>
-            <span>
-            <span className="block text-2xl font-black tracking-tight text-slate-950">{t('logo')}</span>
-            <span className="hidden text-xs font-bold uppercase tracking-[0.25em] text-slate-500 sm:block">{t('tagline')}</span>
-          </span>
+          <Link to="/" className="flex items-center">
+            <img src="/cwd-logo.svg" alt={t('logoAlt')} className="h-12 w-auto max-w-[190px]" />
           </Link>
 
           <nav className="hidden items-center gap-1 rounded-full border border-sky-100 bg-white/75 p-1 shadow-lg shadow-sky-900/5 backdrop-blur lg:flex">

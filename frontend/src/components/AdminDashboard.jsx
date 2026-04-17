@@ -7,6 +7,7 @@ import { useLang } from '../context/LangContext';
 import ManageCars from './ManageCars';
 import AdminBookings from './AdminBookings';
 import AdminUsers from './AdminUsers';
+import ProfilePhoto from './ProfilePhoto';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -111,8 +112,13 @@ const AdminDashboard = () => {
 
                 <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                   <section className="rounded-[2rem] border border-white/70 bg-white/90 p-8 shadow-xl backdrop-blur">
-                    <p className="text-sm font-black uppercase tracking-[0.25em] text-orange-600">{t('adminOverview')}</p>
-                    <h2 className="mt-2 text-3xl font-black text-slate-950">{t('commandShortcuts')}</h2>
+                    <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center">
+                      <ProfilePhoto user={user} size="compact" />
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-[0.25em] text-orange-600">{t('adminOverview')}</p>
+                        <h2 className="mt-2 text-3xl font-black text-slate-950">{t('commandShortcuts')}</h2>
+                      </div>
+                    </div>
                     <div className="mt-6 grid gap-4">
                       {controls.map((item) => {
                         const Icon = item.icon;

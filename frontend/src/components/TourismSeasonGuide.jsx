@@ -65,7 +65,7 @@ const TourismSeasonGuide = () => {
 
   return (
     <section className="overflow-hidden bg-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex flex-col justify-center">
           <p className="mb-4 inline-flex w-fit items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-xs font-black uppercase text-emerald-800 ring-1 ring-emerald-200">
             <Compass className="h-4 w-4" />
@@ -95,7 +95,7 @@ const TourismSeasonGuide = () => {
           </div>
         </div>
 
-        <div className="relative min-h-[520px]">
+        <div className="relative min-h-[430px]">
           <img
             src={issykKulBeachHeroImage}
             alt={t('tourismHeroImageAlt')}
@@ -120,7 +120,7 @@ const TourismSeasonGuide = () => {
         </div>
       </div>
 
-      <div className="bg-slate-950 py-16 text-white">
+      <div className="bg-slate-950 py-12 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
@@ -138,7 +138,7 @@ const TourismSeasonGuide = () => {
 
               return (
                 <article key={card.title} className="overflow-hidden rounded-lg bg-white text-slate-950 shadow-2xl shadow-black/20">
-                  <img src={seasonImages[index]} alt={card.title} className="h-56 w-full object-cover" />
+                <img src={seasonImages[index]} alt={card.title} className="h-48 w-full object-cover" />
                   <div className="p-6">
                     <div className="mb-4 flex items-center justify-between gap-4">
                       <span className="grid h-11 w-11 place-items-center rounded-lg bg-cyan-50 text-cyan-800">
@@ -163,7 +163,7 @@ const TourismSeasonGuide = () => {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_0.8fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_0.8fr] lg:px-8">
         <div>
           <p className="text-sm font-black uppercase text-orange-700">{t('tourismBestPlacesEyebrow')}</p>
           <h3 className="mt-2 text-3xl font-black text-slate-950 md:text-4xl">{t('tourismBestPlacesTitle')}</h3>

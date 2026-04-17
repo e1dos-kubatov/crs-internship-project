@@ -1,11 +1,21 @@
 import axios from 'axios';
 
-const DEFAULT_API_BASE_URL = 'http://localhost:8081/api';
+const LOCAL_API_BASE_URL = 'http://localhost:8081/api';
+const DEPLOYED_API_BASE_URL = 'https://crs-internship-project-1.onrender.com/api';
 
 const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
 
+const getDefaultApiBaseUrl = () => {
+  if (typeof window === 'undefined') {
+    return LOCAL_API_BASE_URL;
+  }
+
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1' ? LOCAL_API_BASE_URL : DEPLOYED_API_BASE_URL;
+};
+
 const normalizeApiBaseUrl = (value) => {
-  const baseUrl = trimTrailingSlash(value || DEFAULT_API_BASE_URL);
+  const baseUrl = trimTrailingSlash(value || getDefaultApiBaseUrl());
   return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
 };
 

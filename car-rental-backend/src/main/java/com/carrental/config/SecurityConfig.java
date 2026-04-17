@@ -42,6 +42,9 @@ public class SecurityConfig {
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    @Value("${app.cors.allowed-origins:${app.frontend.url:http://localhost:5173}}")
+    private String corsAllowedOrigins;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -63,17 +66,34 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> allowedOrigins = new ArrayList<>(List.of("http://localhost:3000", "http://localhost:5173"));
-        if (frontendUrl != null && !frontendUrl.isBlank()) {
-            allowedOrigins.add(normalizeOrigin(frontendUrl));
-        }
-        configuration.setAllowedOriginPatterns(allowedOrigins);
+        List<String> allowedOrigins = new ArrayList<>(List.of(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "https://*.netlify.app",
+                "https://*.onrender.com"
+        ));
+        addConfiguredOrigins(allowedOrigins, frontendUrl);
+        addConfiguredOrigins(allowedOrigins, corsAllowedOrigins);
+        configuration.setAllowedOriginPatterns(allowedOrigins.stream().distinct().toList());
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Location"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private void addConfiguredOrigins(List<String> allowedOrigins, String origins) {
+        if (origins == null || origins.isBlank()) {
+            return;
+        }
+
+        for (String origin : origins.split(",")) {
+            if (!origin.isBlank()) {
+                allowedOrigins.add(normalizeOrigin(origin));
+            }
+        }
     }
 
     private String normalizeOrigin(String origin) {

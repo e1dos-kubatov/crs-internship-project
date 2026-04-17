@@ -1,7 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
-const BACKEND_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+const DEFAULT_API_BASE_URL = 'http://localhost:8081/api';
+
+const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
+
+const normalizeApiBaseUrl = (value) => {
+  const baseUrl = trimTrailingSlash(value || DEFAULT_API_BASE_URL);
+  return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
+const BACKEND_BASE_URL = API_BASE_URL.replace(/\/api$/, '');
 const TOKEN_KEY = 'carRentalToken';
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);

@@ -48,6 +48,7 @@ export const authApi = {
   login: (payload) => request(api.post('/auth/login', payload)),
   register: (payload) => request(api.post('/auth/register', payload)),
   me: () => request(api.get('/auth/me')),
+  oauthStatus: () => request(api.get('/auth/oauth2/status')),
   oauthUrl: (provider) => `${BACKEND_BASE_URL}/oauth2/authorization/${provider}`,
 };
 
@@ -67,6 +68,14 @@ export const rentalsApi = {
   mine: () => request(api.get('/rentals/my-rentals')),
   all: () => request(api.get('/rentals/history')),
   updateStatus: (id, status) => request(api.patch(`/rentals/${id}/status`, { status })),
+};
+
+export const paymentsApi = {
+  createIntent: (payload) => request(api.post('/payments/intents', payload)),
+  confirm: (id, payload) => request(api.post(`/payments/${id}/confirm`, payload)),
+  mine: () => request(api.get('/payments/my')),
+  byRental: (rentalId) => request(api.get(`/payments/rentals/${rentalId}`)),
+  refund: (id, payload) => request(api.post(`/payments/${id}/refunds`, payload)),
 };
 
 export const ordersApi = {

@@ -1,0 +1,713 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< com.car.rental:car-rental-backend >------------------
+[INFO] Building car-rental-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.0:run (default-cli) > test-compile @ car-rental-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ car-rental-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ car-rental-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ car-rental-backend ---
+[INFO] skip non existing resourceDirectory C:\Users\Admin\crs-internship-project\car-rental-backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ car-rental-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.2.0:run (default-cli) < test-compile @ car-rental-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.0:run (default-cli) @ car-rental-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2026-04-17T11:11:15.820+06:00  INFO 22380 --- [car-rental-backend] [           main] c.carrental.CarRentalBackendApplication  : Starting CarRentalBackendApplication using Java 21.0.9 with PID 22380 (C:\Users\Admin\crs-internship-project\car-rental-backend\target\classes started by Admin in C:\Users\Admin\crs-internship-project\car-rental-backend)
+2026-04-17T11:11:15.821+06:00  INFO 22380 --- [car-rental-backend] [           main] c.carrental.CarRentalBackendApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-04-17T11:11:16.570+06:00  INFO 22380 --- [car-rental-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-17T11:11:16.651+06:00  INFO 22380 --- [car-rental-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 71 ms. Found 8 JPA repository interfaces.
+2026-04-17T11:11:17.351+06:00  INFO 22380 --- [car-rental-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-04-17T11:11:17.363+06:00  INFO 22380 --- [car-rental-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-17T11:11:17.363+06:00  INFO 22380 --- [car-rental-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-04-17T11:11:17.410+06:00  INFO 22380 --- [car-rental-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-17T11:11:17.410+06:00  INFO 22380 --- [car-rental-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1501 ms
+2026-04-17T11:11:17.566+06:00  INFO 22380 --- [car-rental-backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-17T11:11:17.633+06:00  INFO 22380 --- [car-rental-backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
+2026-04-17T11:11:17.671+06:00  INFO 22380 --- [car-rental-backend] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-17T11:11:17.854+06:00  INFO 22380 --- [car-rental-backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-17T11:11:17.874+06:00  INFO 22380 --- [car-rental-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-17T11:11:18.280+06:00  INFO 22380 --- [car-rental-backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6b3d9c38
+2026-04-17T11:11:18.289+06:00  INFO 22380 --- [car-rental-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-17T11:11:18.388+06:00  WARN 22380 --- [car-rental-backend] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-17T11:11:21.413+06:00  INFO 22380 --- [car-rental-backend] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-17T11:11:21.680+06:00  INFO 22380 --- [car-rental-backend] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-17T11:11:25.025+06:00  INFO 22380 --- [car-rental-backend] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@52737c1, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@158cb50a, org.springframework.security.web.context.SecurityContextHolderFilter@30dd23e2, org.springframework.security.web.header.HeaderWriterFilter@5f1dadf4, org.springframework.web.filter.CorsFilter@649a6d88, org.springframework.security.web.authentication.logout.LogoutFilter@4b99f2ed, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@5af47414, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@18711946, com.carrental.security.JwtAuthenticationFilter@380e3122, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@75693526, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@39a1c200, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@69e23e94, org.springframework.security.web.session.SessionManagementFilter@45dfb6a4, org.springframework.security.web.access.ExceptionTranslationFilter@6a9d572, org.springframework.security.web.access.intercept.AuthorizationFilter@1e284d90]
+2026-04-17T11:11:25.574+06:00  INFO 22380 --- [car-rental-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path ''
+2026-04-17T11:11:25.591+06:00  INFO 22380 --- [car-rental-backend] [           main] c.carrental.CarRentalBackendApplication  : Started CarRentalBackendApplication in 10.281 seconds (process running for 10.68)
+2026-04-17T11:11:25.901+06:00  INFO 22380 --- [car-rental-backend] [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-17T11:11:25.901+06:00  INFO 22380 --- [car-rental-backend] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-17T11:11:25.904+06:00  INFO 22380 --- [car-rental-backend] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-04-17T11:11:26.031+06:00  WARN 22380 --- [car-rental-backend] [nio-8081-exec-2] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/api/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.car_id,
+        r1_0.created_at,
+        r1_0.end_date,
+        r1_0.is_deleted,
+        r1_0.start_date,
+        r1_0.status,
+        r1_0.total_price,
+        r1_0.user_id 
+    from
+        rentals r1_0 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.created_at,
+        p1_0.currency,
+        p1_0.payment_intent_id,
+        p1_0.payment_method,
+        p1_0.provider,
+        p1_0.rental_id,
+        p1_0.status,
+        p1_0.transaction_id,
+        p1_0.updated_at 
+    from
+        payments p1_0 
+    left join
+        rentals r1_0 
+            on r1_0.id=p1_0.rental_id 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.admin_note,
+        c1_0.available,
+        c1_0.brand,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.fuel,
+        c1_0.image_url1,
+        c1_0.image_url2,
+        c1_0.image_url3,
+        c1_0.is_deleted,
+        c1_0.model,
+        c1_0.owner_id,
+        c1_0.price_per_day,
+        c1_0.status,
+        c1_0.transmission,
+        c1_0.vin,
+        c1_0.car_year 
+    from
+        cars c1_0 
+    where
+        c1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.created_at,
+        p1_0.currency,
+        p1_0.payment_intent_id,
+        p1_0.payment_method,
+        p1_0.provider,
+        p1_0.rental_id,
+        p1_0.status,
+        p1_0.transaction_id,
+        p1_0.updated_at 
+    from
+        payments p1_0 
+    left join
+        rentals r1_0 
+            on r1_0.id=p1_0.rental_id 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.car_id,
+        r1_0.created_at,
+        r1_0.end_date,
+        r1_0.is_deleted,
+        r1_0.start_date,
+        r1_0.status,
+        r1_0.total_price,
+        r1_0.user_id 
+    from
+        rentals r1_0 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.admin_note,
+        c1_0.available,
+        c1_0.brand,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.fuel,
+        c1_0.image_url1,
+        c1_0.image_url2,
+        c1_0.image_url3,
+        c1_0.is_deleted,
+        c1_0.model,
+        c1_0.owner_id,
+        c1_0.price_per_day,
+        c1_0.status,
+        c1_0.transmission,
+        c1_0.vin,
+        c1_0.car_year 
+    from
+        cars c1_0 
+    where
+        c1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.admin_note,
+        c1_0.available,
+        c1_0.brand,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.fuel,
+        c1_0.image_url1,
+        c1_0.image_url2,
+        c1_0.image_url3,
+        c1_0.is_deleted,
+        c1_0.model,
+        c1_0.owner_id,
+        c1_0.price_per_day,
+        c1_0.status,
+        c1_0.transmission,
+        c1_0.vin,
+        c1_0.car_year 
+    from
+        cars c1_0 
+    where
+        c1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.car_id,
+        r1_0.created_at,
+        r1_0.end_date,
+        r1_0.is_deleted,
+        r1_0.start_date,
+        r1_0.status,
+        r1_0.total_price,
+        r1_0.user_id 
+    from
+        rentals r1_0 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.created_at,
+        p1_0.currency,
+        p1_0.payment_intent_id,
+        p1_0.payment_method,
+        p1_0.provider,
+        p1_0.rental_id,
+        p1_0.status,
+        p1_0.transaction_id,
+        p1_0.updated_at 
+    from
+        payments p1_0 
+    left join
+        rentals r1_0 
+            on r1_0.id=p1_0.rental_id 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.admin_note,
+        c1_0.available,
+        c1_0.brand,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.fuel,
+        c1_0.image_url1,
+        c1_0.image_url2,
+        c1_0.image_url3,
+        c1_0.is_deleted,
+        c1_0.model,
+        c1_0.owner_id,
+        c1_0.price_per_day,
+        c1_0.status,
+        c1_0.transmission,
+        c1_0.vin,
+        c1_0.car_year 
+    from
+        cars c1_0 
+    where
+        c1_0.id=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.banned,
+        u1_0.banned_reason,
+        u1_0.email,
+        u1_0.enabled,
+        u1_0.is_deleted,
+        u1_0.name,
+        u1_0.password,
+        u1_0.provider,
+        u1_0.provider_id,
+        u1_0.role 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.car_id,
+        r1_0.created_at,
+        r1_0.end_date,
+        r1_0.is_deleted,
+        r1_0.start_date,
+        r1_0.status,
+        r1_0.total_price,
+        r1_0.user_id 
+    from
+        rentals r1_0 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        p1_0.id,
+        p1_0.amount,
+        p1_0.created_at,
+        p1_0.currency,
+        p1_0.payment_intent_id,
+        p1_0.payment_method,
+        p1_0.provider,
+        p1_0.rental_id,
+        p1_0.status,
+        p1_0.transaction_id,
+        p1_0.updated_at 
+    from
+        payments p1_0 
+    left join
+        rentals r1_0 
+            on r1_0.id=p1_0.rental_id 
+    where
+        r1_0.user_id=?
+Hibernate: 
+    select
+        c1_0.id,
+        c1_0.admin_note,
+        c1_0.available,
+        c1_0.brand,
+        c1_0.created_at,
+        c1_0.description,
+        c1_0.fuel,
+        c1_0.image_url1,
+        c1_0.image_url2,
+        c1_0.image_url3,
+        c1_0.is_deleted,
+        c1_0.model,
+        c1_0.owner_id,
+        c1_0.price_per_day,
+        c1_0.status,
+        c1_0.transmission,
+        c1_0.vin,
+        c1_0.car_year 
+    from
+        cars c1_0 
+    where
+        c1_0.id=?

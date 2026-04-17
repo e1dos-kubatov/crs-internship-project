@@ -16,6 +16,7 @@ import Footer from './components/Footer';
 import Register from "./components/Register"
 import ClientDashboard from './components/ClientDashboard';
 import CancelBooking from './components/CancelBooking';
+import PaymentPage from './components/PaymentPage';
 
 const ProtectedRoute = ({ children, adminOnly }) => {
   const { user, loading } = useAuth();
@@ -76,6 +77,7 @@ function AppContent() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/cancel-booking" element={<ProtectedRoute><CancelBooking /></ProtectedRoute>} />
+              <Route path="/payment/:rentalId" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
               <Route path="/account/modify-booking" element={<ProtectedRoute><StaticPage page="modifyBooking" /></ProtectedRoute>} />
               <Route path="/:page" element={<StaticPageWrapper />} />
               <Route path="*" element={<Navigate to="/" />} />

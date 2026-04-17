@@ -84,7 +84,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithOAuth = (provider) => {
+  const loginWithOAuth = async (provider) => {
+    const status = await authApi.oauthStatus();
+    if (!status?.[provider]) {
+      throw new Error(`${provider} OAuth is not configured on the backend.`);
+    }
     window.location.href = authApi.oauthUrl(provider);
   };
 

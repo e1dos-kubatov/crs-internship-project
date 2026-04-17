@@ -92,7 +92,7 @@ if ($Restart) {
     Stop-PortListener -Port 5173
 }
 
-$backendCommand = "Set-Location -LiteralPath '$backendPath'; mvn.cmd spring-boot:run"
+$backendCommand = "Set-Location -LiteralPath '$backendPath'; `$env:PORT='8081'; `$env:FRONTEND_URL='http://localhost:5173'; `$env:BACKEND_URL='http://localhost:8081'; mvn.cmd spring-boot:run"
 $frontendCommand = "Set-Location -LiteralPath '$frontendPath'; if (-not (Test-Path -LiteralPath 'node_modules')) { npm.cmd install }; npm.cmd run dev -- --host 0.0.0.0"
 
 $backendListener = Get-PortListener -Port 8081

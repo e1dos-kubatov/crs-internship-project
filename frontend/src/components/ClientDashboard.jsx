@@ -4,6 +4,8 @@ import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
+import { paymentsApi } from '../api/client';
+import { paymentFromApi } from '../api/adapters';
 import ManageCars from './ManageCars';
 import ProfilePhoto from './ProfilePhoto';
 
@@ -12,6 +14,7 @@ const ClientDashboard = () => {
   const { getMyRentals } = useRental();
   const { t } = useLang();
   const [bookings, setBookings] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -20,7 +23,12 @@ const ClientDashboard = () => {
       setLoading(true);
       setError('');
       try {
-        setBookings(await getMyRentals());
+        const [loadedBookings, loadedPayments] = await Promise.all([
+          getMyRentals(),
+          paymentsApi.mine(),
+        ]);
+        setBookings(loadedBookings);
+        setPayments(loadedPayments.map(paymentFromApi));
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -33,6 +41,10 @@ const ClientDashboard = () => {
   const total = bookings.reduce((sum, booking) => sum + Number(booking.total || 0), 0);
   const activeRentals = bookings.filter((booking) => String(booking.status || '').toLowerCase() === 'active').length;
   const latestRental = bookings[0];
+  const paymentByRentalId = payments.reduce((map, payment) => {
+    map[String(payment.rentalId)] = payment;
+    return map;
+  }, {});
 
   const statCards = [
     { label: t('rentals'), value: bookings.length, icon: CalendarClock, className: 'from-orange-500 to-rose-700' },
@@ -121,19 +133,34 @@ const ClientDashboard = () => {
                         <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('dates')}</th>
                         <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('total')}</th>
                         <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('status')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-500">{t('payment')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {bookings.map((booking) => (
-                        <tr key={booking.id}>
-                          <td className="px-4 py-4 text-sm font-bold text-slate-950">{booking.car}</td>
-                          <td className="px-4 py-4 text-sm text-slate-700">{booking.pickup} - {booking.dropoff}</td>
-                          <td className="px-4 py-4 text-sm font-black text-slate-950">${booking.total}</td>
-                          <td className="px-4 py-4">
-                            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black uppercase text-emerald-700">{booking.status}</span>
-                          </td>
-                        </tr>
-                      ))}
+                      {bookings.map((booking) => {
+                        const payment = paymentByRentalId[String(booking.id)];
+                        const paid = ['succeeded', 'refunded', 'partially_refunded'].includes(payment?.status);
+
+                        return (
+                          <tr key={booking.id}>
+                            <td className="px-4 py-4 text-sm font-bold text-slate-950">{booking.car}</td>
+                            <td className="px-4 py-4 text-sm text-slate-700">{booking.pickup} - {booking.dropoff}</td>
+                            <td className="px-4 py-4 text-sm font-black text-slate-950">${booking.total}</td>
+                            <td className="px-4 py-4">
+                              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black uppercase text-emerald-700">{booking.status}</span>
+                            </td>
+                            <td className="px-4 py-4">
+                              {paid ? (
+                                <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-black uppercase text-cyan-700">{payment.status}</span>
+                              ) : (
+                                <Link to={`/payment/${booking.id}`} className="rounded-lg bg-slate-950 px-3 py-2 text-xs font-black text-white">
+                                  {t('payNow')}
+                                </Link>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

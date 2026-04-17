@@ -73,6 +73,13 @@ export const rentalFromApi = (rental) => ({
   status: String(rental.status || '').toLowerCase(),
 });
 
+export const paymentFromApi = (payment) => ({
+  ...payment,
+  amount: Number(payment.amount || 0),
+  status: String(payment.status || '').toLowerCase(),
+  provider: String(payment.provider || 'DEMO').toLowerCase(),
+});
+
 export const orderFromApi = (order) => ({
   ...order,
   car: `${order.brand || ''} ${order.model || ''}`.trim() || `Order #${order.id}`,

@@ -44,9 +44,9 @@ public class RentalService {
             throw new BadRequestException("You cannot rent your own car");
         }
 
-        boolean overlaps = rentalRepository.existsByCarIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        boolean overlaps = rentalRepository.existsByCarIdAndStatusInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                 car.getId(),
-                RentalStatus.ACTIVE,
+                List.of(RentalStatus.ACTIVE),
                 request.getEndDate(),
                 request.getStartDate()
         );

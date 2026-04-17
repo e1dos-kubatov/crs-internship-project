@@ -4,6 +4,7 @@ import com.carrental.security.JwtAuthenticationEntryPoint;
 import com.carrental.security.JwtAuthenticationFilter;
 import com.carrental.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -36,6 +38,9 @@ public class SecurityConfig {
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,7 +63,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:5173"));
+        List<String> allowedOrigins = new ArrayList<>(List.of("http://localhost:3000", "http://localhost:5173"));
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            allowedOrigins.add(normalizeOrigin(frontendUrl));
+        }
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -67,12 +76,17 @@ public class SecurityConfig {
         return source;
     }
 
+    private String normalizeOrigin(String origin) {
+        String trimmed = origin.trim();
+        return trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         // Public static resources
                         .requestMatchers("/", "/error", "/favicon.ico", "/static/**", "/public/**").permitAll()
@@ -83,13 +97,14 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/cars", "/api/cars/{id}").permitAll()
                         // Auth endpoints remain fully public
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/payments/webhooks/**").permitAll()
 
                         // Public OAuth2 endpoints
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
                         // SECURED ENDPOINTS
                         .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN")
-                        .requestMatchers("/api/rentals/**", "/api/bookings/**", "/api/user/**").authenticated()
+                        .requestMatchers("/api/rentals/**", "/api/bookings/**", "/api/user/**", "/api/payments/**").authenticated()
 
                         .anyRequest().authenticated()
                 )

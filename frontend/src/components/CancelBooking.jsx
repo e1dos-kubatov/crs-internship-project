@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, LifeBuoy, Mail, MessageCircle, Search, ShieldCheck, XCircle } from 'lucide-react';
-import { rentalsApi } from '../api/client';
+import { paymentsApi, rentalsApi } from '../api/client';
+import { paymentFromApi } from '../api/adapters';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { useRental } from '../context/RentalContext';
@@ -10,6 +11,7 @@ const CancelBooking = () => {
   const { getMyRentals } = useRental();
   const { t } = useLang();
   const [bookingId, setBookingId] = useState('');
+  const [reason, setReason] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,17 @@ const CancelBooking = () => {
         if (!rental) {
           setError(t('rentalNotFound'));
         } else {
-          setStatus(t('rentalFoundContactSupport'));
+          const payments = (await paymentsApi.byRental(rental.id)).map(paymentFromApi);
+          const refundablePayment = payments.find((payment) => payment.status === 'succeeded' || payment.status === 'partially_refunded');
+          if (refundablePayment) {
+            await paymentsApi.refund(refundablePayment.id, {
+              amount: rental.total,
+              reason: reason || t('customerCancellationReason'),
+            });
+            setStatus(t('refundCreated'));
+          } else {
+            setStatus(t('rentalFoundContactSupport'));
+          }
         }
       }
     } catch (cancelError) {
@@ -92,6 +104,16 @@ const CancelBooking = () => {
                 className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-lg font-bold outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
                 placeholder={t('enterRentalId')}
                 required
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-black text-slate-700">{t('refundReason')}</span>
+              <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="min-h-28 w-full rounded-2xl border border-slate-200 bg-white p-4 text-sm font-bold outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                placeholder={t('refundReasonPlaceholder')}
               />
             </label>
 

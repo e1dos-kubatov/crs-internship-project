@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { cars as fallbackCars } from '../data/cars';
-import { carsApi, ordersApi, rentalsApi } from '../api/client';
-import { carFromApi, carToApi, rentalFromApi } from '../api/adapters';
+import { carsApi, ordersApi, paymentsApi, rentalsApi } from '../api/client';
+import { carFromApi, carToApi, paymentFromApi, rentalFromApi } from '../api/adapters';
 
 const RentalContext = createContext();
 
@@ -134,6 +134,11 @@ const RentalProvider = ({ children }) => {
     return rentals.map(rentalFromApi);
   }, []);
 
+  const getRentalPayments = useCallback(async (rentalId) => {
+    const payments = await paymentsApi.byRental(rentalId);
+    return payments.map(paymentFromApi);
+  }, []);
+
   const getMyCars = useCallback(async () => {
     const apiCars = await carsApi.mine();
     return apiCars.map(carFromApi);
@@ -183,6 +188,7 @@ const RentalProvider = ({ children }) => {
     getAllRentals,
     getMyCars,
     getAdminCars,
+    getRentalPayments,
     saveCar,
     createOrder,
     deleteCar,

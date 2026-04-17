@@ -33,6 +33,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
 
   const oauthMessage = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,6 +51,17 @@ const Login = () => {
       navigate(result.user.role === 'admin' ? '/admin' : '/account');
     } else {
       setError(result.error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setOauthLoading(true);
+    try {
+      await loginWithOAuth('google');
+    } catch {
+      setError(t('oauthNotConfigured'));
+      setOauthLoading(false);
     }
   };
 
@@ -140,11 +152,12 @@ const Login = () => {
           <div className="grid gap-3">
             <button
               type="button"
-              onClick={() => loginWithOAuth('google')}
+              onClick={handleGoogleLogin}
+              disabled={oauthLoading}
               className="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-lg"
             >
               <GoogleLogo />
-              Google
+              {oauthLoading ? t('connectingGoogle') : 'Google'}
             </button>
           </div>
 

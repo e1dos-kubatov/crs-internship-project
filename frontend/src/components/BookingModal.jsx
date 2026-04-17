@@ -49,7 +49,7 @@ const BookingModal = ({ car, onClose }) => {
         dates: { pickup: pickupDate, dropoff: dropoffDate },
         total,
       });
-      setSubmitted(true);
+      setSubmitted(rental);
     } catch (submitError) {
       setError(submitError.message);
     } finally {
@@ -68,9 +68,18 @@ const BookingModal = ({ car, onClose }) => {
           <button
             onClick={() => {
               onClose();
-              navigate('/account/bookings');
+              navigate(`/payment/${submitted.id}`);
             }}
             className="mt-6 w-full rounded-2xl bg-slate-950 px-6 py-4 font-black text-white"
+          >
+            {t('continueToPayment')}
+          </button>
+          <button
+            onClick={() => {
+              onClose();
+              navigate('/account/bookings');
+            }}
+            className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 font-black text-slate-800"
           >
             {t('viewMyRentals')}
           </button>

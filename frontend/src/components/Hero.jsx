@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useBooking } from './BookingContext';
 import { offices as locations } from '../data/offices';
 import BookingSummary from './BookingSummary';
+import TourismSeasonGuide from './TourismSeasonGuide';
+
+const homeBackgroundImage = 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Issyk_kul_Lake_mountains.jpg?width=2400';
 
 const Hero = () => {
   const { lang, t } = useLang();
@@ -28,21 +31,31 @@ const Hero = () => {
 
   return (
     <>
-      <section className="relative min-h-[720px] flex flex-col items-center pt-24 pb-12 px-4">
+      <section className="relative flex min-h-[680px] flex-col items-center px-4 pb-12 pt-20">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&q=80"
-            alt="Cars" 
+            src={homeBackgroundImage}
+            alt={t('heroImageAlt')}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/85 via-slate-900/55 to-orange-950/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/70 via-cyan-950/35 to-orange-950/45"></div>
         </div>
 
-        <h1 className="relative z-10 text-white text-4xl md:text-6xl font-black mb-12 text-center tracking-tight max-w-5xl leading-tight">
+        <div className="relative z-10 mb-6 flex flex-wrap justify-center gap-3 text-xs font-black uppercase text-white">
+          {t('heroChips').map((chip) => (
+            <span key={chip} className="rounded-lg bg-white/15 px-4 py-2 backdrop-blur">{chip}</span>
+          ))}
+        </div>
+
+        <h1 className="relative z-10 mb-6 max-w-5xl text-center text-4xl font-black leading-tight text-white md:text-6xl">
           {t('heroTitle')}
         </h1>
 
-        <form onSubmit={handleSearch} className="relative z-10 w-full max-w-6xl rounded-[2rem] border border-white/15 bg-slate-950/80 p-8 text-white shadow-2xl backdrop-blur-xl">
+        <p className="relative z-10 mb-10 max-w-3xl text-center text-base font-semibold leading-7 text-white/90 md:text-lg">
+          {t('heroLead')}
+        </p>
+
+        <form onSubmit={handleSearch} className="relative z-10 w-full max-w-6xl rounded-lg border border-white/15 bg-slate-950/80 p-8 text-white shadow-2xl backdrop-blur-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-4">
               <div className="flex items-center gap-4">
@@ -120,13 +133,14 @@ const Hero = () => {
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-end items-center gap-4">
-            <button type="submit" className="rounded-2xl bg-gradient-to-r from-orange-500 to-sky-700 px-12 py-4 text-sm font-black uppercase tracking-widest shadow-xl transition-all hover:-translate-y-0.5">
+            <button type="submit" className="rounded-lg bg-gradient-to-r from-orange-500 to-sky-700 px-12 py-4 text-sm font-black uppercase shadow-xl transition-all hover:-translate-y-0.5">
               {t('searchCars')}
             </button>
           </div>
         </form>
       </section>
       <BookingSummary />
+      <TourismSeasonGuide />
     </>
   );
 };

@@ -25,15 +25,26 @@ function Get-PortListener {
     $listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
         Select-Object -First 1
 
-    if ($null -eq $listener) {
-        return $null
+    if ($listener) {
+        $processId = $listener.OwningProcess
+    } else {
+        $netstatPattern = "^\s*TCP\s+\S+:$Port\s+\S+\s+LISTENING\s+(\d+)\s*$"
+        $netstatLine = netstat -ano -p tcp |
+            Where-Object { $_ -match $netstatPattern } |
+            Select-Object -First 1
+
+        if (-not $netstatLine -or $netstatLine -notmatch $netstatPattern) {
+            return $null
+        }
+
+        $processId = [int]$Matches[1]
     }
 
-    $process = Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
 
     return [PSCustomObject]@{
         Port = $Port
-        ProcessId = $listener.OwningProcess
+        ProcessId = $processId
         ProcessName = if ($process) { $process.ProcessName } else { "unknown" }
     }
 }
@@ -51,6 +62,28 @@ function Stop-PortListener {
     Start-Sleep -Seconds 2
 }
 
+function Wait-PortListener {
+    param(
+        [int]$Port,
+        [string]$Name,
+        [int]$TimeoutSeconds = 30
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    do {
+        $listener = Get-PortListener -Port $Port
+        if ($listener) {
+            Write-Host "$Name is listening on port $Port (PID $($listener.ProcessId))." -ForegroundColor Green
+            return $true
+        }
+
+        Start-Sleep -Seconds 1
+    } while ((Get-Date) -lt $deadline)
+
+    Write-Host "$Name did not start on port $Port within $TimeoutSeconds seconds. Check the opened PowerShell window for the error." -ForegroundColor Red
+    return $false
+}
+
 Write-Host "Starting Car Rental full-stack web app..." -ForegroundColor Cyan
 Write-Host "Repository: $root" -ForegroundColor DarkGray
 
@@ -59,14 +92,15 @@ if ($Restart) {
     Stop-PortListener -Port 5173
 }
 
-$backendCommand = "cd '$backendPath'; mvn spring-boot:run"
-$frontendCommand = "cd '$frontendPath'; if (-not (Test-Path 'node_modules')) { npm install }; npm run dev -- --host 0.0.0.0"
+$backendCommand = "Set-Location -LiteralPath '$backendPath'; mvn.cmd spring-boot:run"
+$frontendCommand = "Set-Location -LiteralPath '$frontendPath'; if (-not (Test-Path -LiteralPath 'node_modules')) { npm.cmd install }; npm.cmd run dev -- --host 0.0.0.0"
 
 $backendListener = Get-PortListener -Port 8081
 if ($backendListener) {
     Write-Host "Backend port 8081 is already in use by $($backendListener.ProcessName) (PID $($backendListener.ProcessId)). Reusing the running service." -ForegroundColor Yellow
 } else {
     Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCommand -WorkingDirectory $backendPath
+    Wait-PortListener -Port 8081 -Name "Backend" | Out-Null
 }
 
 $frontendListener = Get-PortListener -Port 5173
@@ -74,6 +108,7 @@ if ($frontendListener) {
     Write-Host "Frontend port 5173 is already in use by $($frontendListener.ProcessName) (PID $($frontendListener.ProcessId)). Reusing the running service." -ForegroundColor Yellow
 } else {
     Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendCommand -WorkingDirectory $frontendPath
+    Wait-PortListener -Port 5173 -Name "Frontend" | Out-Null
 }
 
 Write-Host "Backend:  http://localhost:8081" -ForegroundColor Green

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const LOCAL_API_BASE_URL = 'http://localhost:8081/api';
-const DEPLOYED_API_BASE_URL = 'https://crs-internship-project-api.onrender.com/api';
+const DEPLOYED_API_BASE_URL = 'https://crs-internship-project-1.onrender.com/api';
 
 const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
 

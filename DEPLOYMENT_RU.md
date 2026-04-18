@@ -50,6 +50,8 @@ APP_ADMIN_PASSWORD=<strong-admin-password>
 https://crs-internship-project-1.onrender.com
 ```
 
+Если Render выдаст другой subdomain, используйте реальный URL сервиса и обновите три места: `BACKEND_URL` в Render, `VITE_API_URL` в Netlify и Google OAuth redirect URI.
+
 Проверка backend:
 
 ```text

@@ -39,21 +39,20 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
 
-        String email = normalize(safeGetString(oAuth2User, "email"));
-        String name = safeGetString(oAuth2User, "name");
-
         Provider provider = Provider.valueOf(
                 oauthToken.getAuthorizedClientRegistrationId().toUpperCase()
         );
 
         String providerId = extractProviderId(provider, oAuth2User, authentication.getName());
+        String email = extractEmail(provider, oAuth2User, providerId);
+        String name = firstNonBlank(safeGetString(oAuth2User, "name"), email);
 
         // 🔥 FIX: найти или СОЗДАТЬ пользователя
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .email(email)
-                                .name(name != null ? name : "OAuth User")
+                                .name(name)
                                 .provider(provider)
                                 .providerId(providerId)
                                 .role(Role.ROLE_PARTNER)
@@ -61,9 +60,12 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                 ));
 
         // 🔥 если пользователь есть, но provider не установлен
-        if (user.getProvider() == null) {
+        if (user.getProvider() == null || user.getProvider() == Provider.LOCAL) {
             user.setProvider(provider);
             user.setProviderId(providerId);
+            if (name != null && !name.isBlank()) {
+                user.setName(name);
+            }
             userRepository.save(user);
         }
 
@@ -93,6 +95,22 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             );
             default -> null;
         };
+    }
+
+    private String extractEmail(Provider provider, OAuth2User oAuth2User, String providerId) {
+        String email = normalize(safeGetString(oAuth2User, "email"));
+        if (email != null && !email.isBlank()) {
+            return email;
+        }
+
+        String cleanProviderId = firstNonBlank(
+                providerId,
+                safeGetString(oAuth2User, "sub"),
+                safeGetString(oAuth2User, "id"),
+                "unknown"
+        );
+        return cleanProviderId.replaceAll("[^a-zA-Z0-9]", "").toLowerCase()
+                + "@" + provider.name().toLowerCase() + ".oauth.local";
     }
 
     private String safeGetString(OAuth2User oAuth2User, String key) {

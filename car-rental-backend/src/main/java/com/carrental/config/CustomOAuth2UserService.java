@@ -7,6 +7,7 @@ import com.carrental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // Let Spring fetch the user details from Google.
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
-        Provider provider = Provider.valueOf(registrationId);
+        Provider provider = resolveProvider(userRequest.getClientRegistration().getRegistrationId());
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         String email = extractEmail(provider, attributes);
@@ -43,6 +43,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // Return the original OAuth2User object. Our CustomOAuth2SuccessHandler will handle the rest.
         return oAuth2User;
+    }
+
+    private Provider resolveProvider(String registrationId) {
+        try {
+            return Provider.valueOf(registrationId.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("unsupported_provider"),
+                    "Unsupported OAuth provider: " + registrationId
+            );
+        }
     }
 
     private void registerNewUser(String email, String name, Provider provider, String providerId) {
@@ -74,6 +85,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // Fallback if the OAuth provider does not return an email.
         String name = getString(attributes, "name");
         String id = extractProviderId(provider, attributes);
+        if (id == null || id.isBlank()) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("missing_provider_id"),
+                    "OAuth provider did not return a stable user id."
+            );
+        }
         String cleanName = name != null ? name.replaceAll("[^a-zA-Z0-9]", "").toLowerCase() : "user";
         return cleanName + "_" + id + "@" + provider.name().toLowerCase() + ".local";
     }

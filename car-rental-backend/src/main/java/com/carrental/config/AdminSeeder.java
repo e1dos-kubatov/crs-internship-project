@@ -5,6 +5,7 @@ import com.carrental.entity.Role;
 import com.carrental.entity.User;
 import com.carrental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AdminSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -34,13 +36,25 @@ public class AdminSeeder implements CommandLineRunner {
         jdbcTemplate.update("update cars set transmission = 'auto' where transmission is null");
         jdbcTemplate.update("update cars set fuel = 'gas' where fuel is null");
 
-        userRepository.findByEmail(adminEmail.trim().toLowerCase())
+        if (!hasText(adminEmail) || !hasText(adminPassword)) {
+            log.warn("Admin user seed skipped. Set APP_ADMIN_EMAIL and APP_ADMIN_PASSWORD to create the initial admin account.");
+            return;
+        }
+
+        String normalizedEmail = adminEmail.trim().toLowerCase();
+        String normalizedName = hasText(adminName) ? adminName.trim() : "System Admin";
+
+        userRepository.findByEmail(normalizedEmail)
                 .orElseGet(() -> userRepository.save(User.builder()
-                        .name(adminName)
-                        .email(adminEmail.trim().toLowerCase())
+                        .name(normalizedName)
+                        .email(normalizedEmail)
                         .password(passwordEncoder.encode(adminPassword))
                         .role(Role.ROLE_ADMIN)
                         .provider(Provider.LOCAL)
                         .build()));
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Camera, UserRound } from 'lucide-react';
 import { useLang } from '../context/LangContext';
 
@@ -6,11 +6,9 @@ const ProfilePhoto = ({ user, size = 'large' }) => {
   const { t } = useLang();
   const inputRef = useRef(null);
   const storageKey = useMemo(() => `profilePhoto:${user?.id || user?.email || 'guest'}`, [user?.email, user?.id]);
-  const [photo, setPhoto] = useState('');
-
-  useEffect(() => {
-    setPhoto(localStorage.getItem(storageKey) || '');
-  }, [storageKey]);
+  const [uploadedPhoto, setUploadedPhoto] = useState({ storageKey: '', value: '' });
+  const storedPhoto = useMemo(() => localStorage.getItem(storageKey) || '', [storageKey]);
+  const photo = uploadedPhoto.storageKey === storageKey ? uploadedPhoto.value : storedPhoto;
 
   const handleUpload = (event) => {
     const file = event.target.files?.[0];
@@ -31,7 +29,7 @@ const ProfilePhoto = ({ user, size = 'large' }) => {
 
         const nextPhoto = canvas.toDataURL('image/jpeg', 0.82);
         localStorage.setItem(storageKey, nextPhoto);
-        setPhoto(nextPhoto);
+        setUploadedPhoto({ storageKey, value: nextPhoto });
       };
       image.src = String(reader.result || '');
     };

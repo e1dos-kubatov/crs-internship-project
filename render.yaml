@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: crs-internship-project-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./car-rental-backend/Dockerfile
+    dockerContext: ./car-rental-backend
+    healthCheckPath: /api/auth/oauth2/status
+    autoDeployTrigger: commit
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: APP_ADMIN_NAME
+        sync: false
+      - key: APP_ADMIN_EMAIL
+        sync: false
+      - key: APP_ADMIN_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: DB_POOL_MAX_SIZE
+        value: "5"
+      - key: DB_POOL_MIN_IDLE
+        value: "1"
+      - key: JPA_SHOW_SQL
+        value: "false"
+      - key: GOOGLE_CLIENT_ID
+        value: oauth-not-configured
+      - key: GOOGLE_CLIENT_SECRET
+        value: oauth-not-configured

@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, CreditCard, LockKeyhole, ReceiptText, RefreshCw, ShieldCheck } from 'lucide-react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { paymentsApi, rentalsApi } from '../api/client';
 import { paymentFromApi, rentalFromApi } from '../api/adapters';
 import { useLang } from '../context/LangContext';
 
 const PaymentPage = () => {
   const { rentalId } = useParams();
-  const navigate = useNavigate();
   const { t } = useLang();
   const [rental, setRental] = useState(null);
   const [payments, setPayments] = useState([]);

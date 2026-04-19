@@ -32,6 +32,7 @@ const ManageCars = () => {
   const [showForm, setShowForm] = useState(false);
   const [newCar, setNewCar] = useState(emptyCar);
   const [editingId, setEditingId] = useState(null);
+  const [imageFileNames, setImageFileNames] = useState(['', '', '']);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,7 @@ const ManageCars = () => {
 
   const resetForm = () => {
     setNewCar(emptyCar);
+    setImageFileNames(['', '', '']);
     setEditingId(null);
     setShowForm(false);
   };
@@ -73,9 +75,24 @@ const ManageCars = () => {
   const handleImageUpload = (index, file) => {
     if (!file) return;
 
+    setImageFileNames((prev) => {
+      const fileNames = [...prev];
+      fileNames[index] = file.name;
+      return fileNames;
+    });
+
     const reader = new FileReader();
     reader.onload = () => updateImage(index, reader.result);
     reader.readAsDataURL(file);
+  };
+
+  const clearImage = (index) => {
+    updateImage(index, '');
+    setImageFileNames((prev) => {
+      const fileNames = [...prev];
+      fileNames[index] = '';
+      return fileNames;
+    });
   };
 
   const validate = () => {
@@ -125,6 +142,7 @@ const ManageCars = () => {
       images: car.images || [car.img || '', '', ''],
       description: car.description,
     });
+    setImageFileNames(['', '', '']);
     setShowForm(true);
   };
 
@@ -169,6 +187,7 @@ const ManageCars = () => {
               setShowForm((prev) => !prev);
               setEditingId(null);
               setNewCar(emptyCar);
+              setImageFileNames(['', '', '']);
             }}
             className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-black text-white shadow-xl"
           >
@@ -212,13 +231,28 @@ const ManageCars = () => {
                       </div>
                     )}
                     <input
+                      id={`car-image-${index}`}
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleImageUpload(index, e.target.files?.[0])}
-                      className="w-full text-xs text-slate-600 file:mr-2 file:rounded-full file:border-0 file:bg-cwd-blue file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                      onChange={(e) => {
+                        handleImageUpload(index, e.target.files?.[0]);
+                        e.target.value = '';
+                      }}
+                      className="sr-only"
                     />
+                    <div className="flex items-center gap-3">
+                      <label
+                        htmlFor={`car-image-${index}`}
+                        className="inline-flex shrink-0 cursor-pointer rounded-full bg-cwd-blue px-3 py-2 text-xs font-bold text-white transition hover:bg-sky-700"
+                      >
+                        {t('chooseFile')}
+                      </label>
+                      <span className="min-w-0 truncate text-xs text-slate-600" title={imageFileNames[index] || t('noFileChosen')}>
+                        {imageFileNames[index] || t('noFileChosen')}
+                      </span>
+                    </div>
                     {newCar.images?.[index] && (
-                      <button type="button" onClick={() => updateImage(index, '')} className="mt-2 text-xs font-bold text-red-600 hover:text-red-700">
+                      <button type="button" onClick={() => clearImage(index)} className="mt-2 text-xs font-bold text-red-600 hover:text-red-700">
                         {t('removeImage')}
                       </button>
                     )}

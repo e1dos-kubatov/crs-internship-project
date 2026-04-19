@@ -8,6 +8,7 @@ import CarCard from './CarCard';
 const CarsPage = () => {
   const { filteredCars, filters, loading, error, updateFilters } = useRental();
   const { t } = useLang();
+  const approvedCarsText = t('approvedCarsAvailable', { count: filteredCars.length });
 
   if (loading) {
     return (
@@ -51,7 +52,7 @@ const CarsPage = () => {
               </p>
               <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight md:text-5xl">{t('carsForRent')}</h1>
               <p className="mt-3 max-w-2xl text-base leading-7 text-sky-50/85">
-                {filteredCars.length} {t('approvedCarsAvailable')}
+                {approvedCarsText}
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
@@ -94,7 +95,7 @@ const CarsPage = () => {
                     <p className="text-sm font-bold uppercase tracking-[0.25em] text-cwd-blue">{t('liveFleet')}</p>
                     <h2 className="mt-2 text-3xl font-black text-slate-950 mb-2">{t('cars')}</h2>
                     <p className="text-lg text-slate-600">
-                      {filteredCars.length} {t('approvedCarsAvailable')}
+                      {approvedCarsText}
                     </p>
                   </>
                 )}

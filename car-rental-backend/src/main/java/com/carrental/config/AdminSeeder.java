@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class AdminSeeder implements CommandLineRunner {
     private String adminPassword;
 
     @Override
+    @Transactional
     public void run(String... args) {
         jdbcTemplate.update("update users set role = 'ROLE_PARTNER' where role = 'ROLE_CUSTOMER'");
         jdbcTemplate.update("update cars set transmission = 'auto' where transmission is null");
@@ -44,17 +46,79 @@ public class AdminSeeder implements CommandLineRunner {
         String normalizedEmail = adminEmail.trim().toLowerCase();
         String normalizedName = hasText(adminName) ? adminName.trim() : "System Admin";
 
-        userRepository.findByEmail(normalizedEmail)
+        User admin = userRepository.findByEmail(normalizedEmail)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .name(normalizedName)
                         .email(normalizedEmail)
                         .password(passwordEncoder.encode(adminPassword))
                         .role(Role.ROLE_ADMIN)
                         .provider(Provider.LOCAL)
+                        .enabled(true)
                         .build()));
+
+        boolean changed = false;
+
+        if (!normalizedName.equals(admin.getName())) {
+            admin.setName(normalizedName);
+            changed = true;
+        }
+
+        if (!isAdminRole(admin.getRole())) {
+            admin.setRole(Role.ROLE_ADMIN);
+            changed = true;
+        }
+
+        if (admin.getProvider() == null) {
+            admin.setProvider(Provider.LOCAL);
+            changed = true;
+        }
+
+        if (!admin.isEnabled()) {
+            admin.setEnabled(true);
+            changed = true;
+        }
+
+        if (admin.isDeleted()) {
+            admin.setDeleted(false);
+            changed = true;
+        }
+
+        if (admin.isBanned()) {
+            admin.setBanned(false);
+            admin.setBannedReason(null);
+            changed = true;
+        }
+
+        if (!passwordMatches(adminPassword, admin.getPassword())) {
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            changed = true;
+        }
+
+        if (changed) {
+            userRepository.save(admin);
+            log.info("Admin user seed updated account {}", normalizedEmail);
+        } else {
+            log.info("Admin user seed verified account {}", normalizedEmail);
+        }
     }
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private boolean isAdminRole(Role role) {
+        return role == Role.ROLE_ADMIN || role == Role.ROLE_SUPERADMIN;
+    }
+
+    private boolean passwordMatches(String rawPassword, String encodedPassword) {
+        if (!hasText(encodedPassword)) {
+            return false;
+        }
+
+        try {
+            return passwordEncoder.matches(rawPassword, encodedPassword);
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 }

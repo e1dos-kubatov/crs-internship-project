@@ -15,7 +15,8 @@ mvn spring-boot:run
 
 Main URL: `http://localhost:8081`
 Temporary frontend: `http://localhost:8081/`
-Default admin: `admin@carrental.com` / `Admin123!`
+
+Initial admin is created only when `APP_ADMIN_EMAIL` and `APP_ADMIN_PASSWORD` are set. The seeder also repairs that admin account if it already exists with a missing or outdated local password.
 
 If startup fails with `password authentication failed for user "postgres"`, your PostgreSQL password is different from the default. Set `DB_PASSWORD` to the real password before starting the app.
 

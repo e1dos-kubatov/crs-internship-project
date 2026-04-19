@@ -9,12 +9,11 @@ import com.carrental.entity.Role;
 import com.carrental.entity.User;
 import com.carrental.exception.BadRequestException;
 import com.carrental.exception.ResourceNotFoundException;
+import com.carrental.exception.UnauthorizedException;
 import com.carrental.repository.UserRepository;
 import com.carrental.security.CustomUserDetails;
 import com.carrental.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public JwtResponse register(UserRegisterRequest request) {
@@ -55,21 +53,20 @@ public class AuthService {
         String normalizedEmail = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(this::invalidCredentials);
 
-        // 🔥 HYBRID AUTH FIX:
-        // We only block them if they are an OAuth user AND they don't have a password.
         if (user.getProvider() != Provider.LOCAL && (user.getPassword() == null || user.getPassword().isEmpty())) {
-            throw new BadRequestException("This account uses OAuth2 login and has no local password set.");
+            throw new BadRequestException("This account uses OAuth2 login and has no local password set. Please use OAuth2 login.");
         }
 
-        // 🔐 If they are LOCAL or HYBRID (have a password), verify the credentials
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        normalizedEmail,
-                        request.getPassword()
-                )
-        );
+        if (!user.isEnabled() || user.isDeleted() || user.isBanned()) {
+            throw new UnauthorizedException("Account is disabled or locked");
+        }
+
+        if (user.getPassword() == null || user.getPassword().isBlank()
+                || !passwordMatches(request.getPassword(), user.getPassword())) {
+            throw invalidCredentials();
+        }
 
         return JwtResponse.builder()
                 .token(jwtService.generateToken(new CustomUserDetails(user)))
@@ -87,5 +84,17 @@ public class AuthService {
                 .role(user.getRole())
                 .provider(user.getProvider())
                 .build();
+    }
+
+    private boolean passwordMatches(String rawPassword, String encodedPassword) {
+        try {
+            return passwordEncoder.matches(rawPassword, encodedPassword);
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private UnauthorizedException invalidCredentials() {
+        return new UnauthorizedException("Invalid email or password");
     }
 }

@@ -117,22 +117,17 @@ $env:VITE_API_URL="http://localhost:8081/api"
 npm run dev
 ```
 
-## Default Admin Account
+## Admin Account
 
-The backend seeds an admin user automatically when it starts:
-
-```text
-Email: admin@carrental.com
-Password: Admin123!
-```
-
-You can override these values:
+The backend creates or repairs the initial admin user only when these environment variables are set:
 
 ```powershell
 $env:APP_ADMIN_NAME="System Admin"
 $env:APP_ADMIN_EMAIL="admin@carrental.com"
 $env:APP_ADMIN_PASSWORD="Admin123!"
 ```
+
+For production, set `APP_ADMIN_EMAIL` and `APP_ADMIN_PASSWORD` in Render. If they are missing, the backend skips admin seeding and logs a warning.
 
 ## Roles And Access
 

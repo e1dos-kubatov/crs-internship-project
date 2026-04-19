@@ -7,7 +7,7 @@
 - `netlify.toml` говорит Netlify, что frontend лежит в папке `frontend`, билдится командой `npm run build`, а готовые файлы находятся в `frontend/dist`.
 - `render.yaml` говорит Render, что backend нужно запускать как Docker web service из `car-rental-backend/Dockerfile`.
 - `car-rental-backend/src/main/resources/application.properties` теперь берет production-настройки из env-переменных, а не из hardcoded секретов.
-- `frontend/src/api/client.js` по умолчанию смотрит на `https://crs-internship-project-1.onrender.com/api`.
+- `frontend/src/api/client.js` по умолчанию смотрит на `https://crs-internship-project.onrender.com/api`.
 
 ## 2. Neon PostgreSQL
 
@@ -47,7 +47,7 @@ APP_ADMIN_PASSWORD=<strong-admin-password>
 После успешного деплоя backend должен быть доступен здесь:
 
 ```text
-https://crs-internship-project-1.onrender.com
+https://crs-internship-project.onrender.com
 ```
 
 Если Render выдаст другой subdomain, используйте реальный URL сервиса и обновите три места: `BACKEND_URL` в Render, `VITE_API_URL` в Netlify и Google OAuth redirect URI.
@@ -55,7 +55,7 @@ https://crs-internship-project-1.onrender.com
 Проверка backend:
 
 ```text
-https://crs-internship-project-1.onrender.com/api/auth/oauth2/status
+https://crs-internship-project.onrender.com/api/auth/oauth2/status
 ```
 
 ## 4. Netlify Frontend
@@ -74,7 +74,7 @@ Publish directory: dist
 5. Проверьте env:
 
 ```text
-VITE_API_URL=https://crs-internship-project-1.onrender.com/api
+VITE_API_URL=https://crs-internship-project.onrender.com/api
 NODE_VERSION=22
 ```
 
@@ -90,7 +90,7 @@ NODE_VERSION=22
 2. Добавьте Authorized redirect URI:
 
 ```text
-https://crs-internship-project-1.onrender.com/login/oauth2/code/google
+https://crs-internship-project.onrender.com/login/oauth2/code/google
 ```
 
 3. В Render замените:

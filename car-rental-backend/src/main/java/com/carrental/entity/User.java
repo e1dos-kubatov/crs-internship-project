@@ -49,7 +49,6 @@ public class User {
 
     private String bannedReason;
 
-    // ===== AUDIT / SECURITY (OPTIONAL BUT IMPORTANT) =====
     @Builder.Default
     private boolean enabled = true;
 }
